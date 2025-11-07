@@ -70,7 +70,7 @@ rank_options = [
     ("Emerald 1", 2400),
 ]
 
-# Rows in the games table
+# Labels for rows in the games table
 row_labels = [
     "Round one games",
     "Round two games",
@@ -78,7 +78,7 @@ row_labels = [
     "Win final round games",
 ]
 
-# Initialize with placeholders or initial values
+# Full table rows in the games table
 updated_table_rows = [
     [row_labels[0], round_one_games, round_one_time],
     [row_labels[1], round_two_games, round_two_time],
@@ -86,7 +86,7 @@ updated_table_rows = [
     [row_labels[3], win_final_round_games, win_final_round_time],
 ]
 
-# To update values later: group new values in lists or tuples corresponding to games and time
+# Updated data used to update the data in table rows
 new_data = [
     (round_one_games, round_one_time),
     (round_two_games, round_two_time),
@@ -104,7 +104,13 @@ def convert_time(bulk_minutes):
     hours = int(bulk_minutes // 60)
     minutes = int(bulk_minutes % 60)
     days = hours // 24
-    return f"{days} days, {hours%24} hours, {minutes} minutes"
+    
+    if days > 0:
+        return f"{days} days, {hours%24} hours, {minutes} minutes\n"
+    elif hours > 0:
+        return f"{hours} hours, {minutes} minutes\n"
+    else:
+        return f"{minutes} minutes\n"
  
  
 # Refresh the table that contains number of games and estimated play time for each round type
@@ -143,14 +149,7 @@ def calculate():
         
         # Estimated amount of play time to reach the goal points
         total_minutes = (points_remaining / 2) * game_time
-        display += convert_time(total_minutes)
-        
-        # if days > 0:
-            # display += f"Estimated play time: {days} days, {hours%24} hours, {minutes} minutes\n"
-        # elif hours > 0:
-            # display += f"Estimated play time: {hours} hours, {minutes} minutes\n"
-        # else:
-            # display += f"Estimated play time: {minutes} minutes\n"
+        display += f"Estimated play time: {convert_time(total_minutes)}"
         
         # Estimated number of games required in each round to reach the goal points
         new_data[0] = (round_one_games, convert_time(round_one_games * round_one_time))
@@ -208,7 +207,7 @@ calc_button.pack(pady=5)
 result_label = tk.Label(root, text="", font=("Arial", 12))
 result_label.pack(pady=30)
 
-# Define columns (not including the special '#0' column)
+# Define columns in the table
 columns = ("round_type", "number_of_games", "playtime")
 
 # Create Treeview with these columns, show="headings" hides the default first column
