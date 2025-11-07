@@ -1,13 +1,7 @@
 # Planned features: 
-# Let player select goal badge from drop down. Include number of points for that tier.
-# Input box for current number of points.
-# Display number of days remaining in the season. Season 8 ends December 11 2025
 # Have points to next rank stat
-# List number of daily points needed. Points needed / days left = daily points
-# Include estimate for time to play as well as daily play time. 
 # Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
 # Daily playtime: minimum amount of time needed to play each day.
-# Estimate play time for each type of round. For example, how much play time if player won final round each time.
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
