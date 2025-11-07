@@ -11,10 +11,45 @@
 
 import tkinter as tk
 
+# Options in "Label: value" format
+rank_options = [
+    ("Bronze 4", 25),
+    ("Bronze 3", 50),
+    ("Bronze 2", 75),
+    ("Bronze 1", 100),
+    ("Silver 4", 150),
+    ("Silver 3", 200),
+    ("Silver 2", 250),
+    ("Silver 1", 300),
+    ("Gold 4", 375),
+    ("Gold 3", 450),
+    ("Gold 2", 525),
+    ("Gold 1", 600),
+    ("Platinum 4", 700),
+    ("Platinum 3", 800),
+    ("Platinum 2", 900),
+    ("Platinum 1", 1000),
+    ("Diamond 4", 1150),
+    ("Diamond 3", 1300),
+    ("Diamond 2", 1450),
+    ("Diamond 1", 1600),
+    ("Emerald 4", 1800),
+    ("Emerald 3", 2000),
+    ("Emerald 2", 2200),
+    ("Emerald 1", 2400),
+]
+
+def on_rank_selected(var_name, index, mode):
+    # When user selects, update goal_points
+    label, points = rank_dict[rank_var.get()]
+    global goal_points
+    goal_points = points
+    goal_label.config(text=f"Goal points: {goal_points} ({label})")
+
 def calculate():
     try:
         current_points = int(entry.get())
-        points_left = 2400 - current_points
+        points_left = goal_points - current_points
         total_minutes = (points_left / 2) * 10
 
         hours = int(total_minutes // 60)
@@ -34,6 +69,26 @@ def calculate():
 root = tk.Tk()
 root.title("World Tour Points Calculator")
 
+rank_dict = {f"{label}: {points}": (label, points) for label, points in rank_options}
+dropdown_options = list(rank_dict.keys())
+
+rank_var = tk.StringVar()
+rank_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
+
+goal_points = rank_dict[rank_var.get()][1]
+
+rank_menu = tk.OptionMenu(root, rank_var, *dropdown_options)
+rank_menu.pack(pady=8)
+
+# Whenever rank_var is changed, on_rank_selected will run
+rank_var.trace_add("write", on_rank_selected)
+
+goal_label = tk.Label(root, text=f"Goal points: {goal_points}")
+goal_label.pack(pady=8)
+
+# Update the goal label text when the game first runs
+on_rank_selected("name", 1, "mode")
+
 tk.Label(root, text="Enter current points:").pack(pady=5)
 entry = tk.Entry(root)
 entry.pack(pady=5)
@@ -44,5 +99,5 @@ calc_button.pack(pady=5)
 result_label = tk.Label(root, text="", font=("Arial", 12))
 result_label.pack(pady=10)
 
-root.geometry("350x180")
+root.geometry("500x300")
 root.mainloop()
