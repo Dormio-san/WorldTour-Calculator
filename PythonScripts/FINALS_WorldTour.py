@@ -11,6 +11,7 @@
 
 import tkinter as tk
 import math
+from datetime import date
 
 # Points awarded for each round in world tour
 lose_round_one_points = 2
@@ -20,6 +21,10 @@ win_final_round_points = 25
 
 # Estimated time each game will take
 game_time = 10
+
+# Dates used to determine how much time is left in the season
+season_end_date = date(2025, 12, 11)
+today_date = date.today()
 
 
 # Options in "Label: value" format
@@ -65,32 +70,40 @@ def calculate():
     try:
         # The amount of points left to reach the goal points
         current_points = int(entry.get())
-        points_left = goal_points - current_points
+        points_remaining = goal_points - current_points
         
         # The number of games needed to reach the goal points
         # Includes losing first round, losing second round, losing final round, and winning final round
-        round_one_games = division_round_up(points_left, lose_round_one_points)
-        round_two_games = division_round_up(points_left, lose_round_two_points)
-        lose_final_round_games = division_round_up(points_left, lose_final_round_points)
-        win_final_round_games = division_round_up(points_left, win_final_round_points)
+        round_one_games = division_round_up(points_remaining, lose_round_one_points)
+        round_two_games = division_round_up(points_remaining, lose_round_two_points)
+        lose_final_round_games = division_round_up(points_remaining, lose_final_round_points)
+        win_final_round_games = division_round_up(points_remaining, win_final_round_points)
         
         # Estimated amount of play time to reach the goal points
-        total_minutes = (points_left / 2) * game_time
+        total_minutes = (points_remaining / 2) * game_time
         hours = int(total_minutes // 60)
         minutes = int(total_minutes % 60)
         days = hours // 24
-        display = f"Points to target: {points_left}\n"
+        display = f"Points remaining: {points_remaining}\n"
         if days > 0:
-            display += f"Estimated time: {days} days, {hours%24} hours, {minutes} minutes\n"
+            display += f"Estimated play time: {days} days, {hours%24} hours, {minutes} minutes\n"
         elif hours > 0:
-            display += f"Estimated time: {hours} hours, {minutes} minutes\n"
+            display += f"Estimated play time: {hours} hours, {minutes} minutes\n"
         else:
-            display += f"Estimated time: {minutes} minutes\n"
-            
+            display += f"Estimated play time: {minutes} minutes\n"
+        
+        # Estimated number of games required in each round to reach the goal points        
         display += f"Round one games: {round_one_games}\n"
         display += f"Round two games: {round_two_games}\n"
         display += f"Lose final round games: {lose_final_round_games}\n"
         display += f"Win final round games: {win_final_round_games}\n"
+        
+        # The amount of points needed per day to reach the goal points
+        days_remaining = (season_end_date - today_date).days
+        daily_points = points_remaining / days_remaining
+        display += f"Days left in the season: {days_remaining}\n"
+        display += f"Points needed per day: {daily_points}\n"
+        
         result_label.config(text=display)
     except ValueError:
         result_label.config(text="Please enter a valid number.")
@@ -126,7 +139,7 @@ calc_button = tk.Button(root, text="Calculate", command=calculate)
 calc_button.pack(pady=5)
 
 result_label = tk.Label(root, text="", font=("Arial", 12))
-result_label.pack(pady=10)
+result_label.pack(pady=30)
 
-root.geometry("500x400")
+root.geometry("500x450")
 root.mainloop()
