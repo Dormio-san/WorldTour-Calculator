@@ -6,12 +6,18 @@
 # List number of daily points needed. Points needed / days left = daily points
 # Include estimate for time to play as well as daily play time. 
 # Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
+# Daily playtime: minimum amount of time needed to play each day.
+# Estimate play time for each type of round. For example, how much play time if player won final round each time.
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
 import tkinter as tk
 import math
 from datetime import date
+from tkinter import ttk
+
+# Estimated time each game will take
+game_time = 10
 
 # Points awarded for each round in world tour
 lose_round_one_points = 2
@@ -19,8 +25,17 @@ lose_round_two_points = 6
 lose_final_round_points = 14
 win_final_round_points = 25
 
-# Estimated time each game will take
-game_time = 10
+# Number of games needed to reach the goal points (default is 0)
+round_one_games = 0
+round_two_games = 0
+lose_final_round_games = 0
+win_final_round_games = 0
+
+# Time spent playing for each type of round
+round_one_time = game_time
+round_two_time = game_time * 2
+lose_final_round_time = game_time * 3
+win_final_round_time = game_time * 3
 
 # Dates used to determine how much time is left in the season
 season_end_date = date(2025, 12, 11)
@@ -55,9 +70,53 @@ rank_options = [
     ("Emerald 1", 2400),
 ]
 
+# Rows in the games table
+row_labels = [
+    "Round one games",
+    "Round two games",
+    "Lose final round games",
+    "Win final round games",
+]
+
+# Initialize with placeholders or initial values
+updated_table_rows = [
+    [row_labels[0], round_one_games, round_one_time],
+    [row_labels[1], round_two_games, round_two_time],
+    [row_labels[2], lose_final_round_games, lose_final_round_time],
+    [row_labels[3], win_final_round_games, win_final_round_time],
+]
+
+# To update values later: group new values in lists or tuples corresponding to games and time
+new_data = [
+    (round_one_games, round_one_time),
+    (round_two_games, round_two_time),
+    (lose_final_round_games, lose_final_round_time),
+    (win_final_round_games, win_final_round_time),
+]
+
 # Perform a division operation and round up the result
 def division_round_up(dividend, divisor):
     return math.ceil(dividend / divisor)
+ 
+ 
+# Given a time in minutes, calculates the resulting time in days, hours, and minutes format
+def convert_time(bulk_minutes):
+    hours = int(bulk_minutes // 60)
+    minutes = int(bulk_minutes % 60)
+    days = hours // 24
+    return f"{days} days, {hours%24} hours, {minutes} minutes"
+ 
+ 
+# Refresh the table that contains number of games and estimated play time for each round type
+def refresh_games_table():
+    # Clear all existing rows
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # Insert updated rows
+    for row in updated_table_rows:
+        tree.insert("", "end", values=row)
+
     
 def on_rank_selected(var_name, index, mode):
     # When user selects, update goal_points
@@ -65,6 +124,7 @@ def on_rank_selected(var_name, index, mode):
     global goal_points
     goal_points = points
     goal_label.config(text=f"Goal points: {goal_points} ({label})")
+
 
 def calculate():
     try:
@@ -79,24 +139,27 @@ def calculate():
         lose_final_round_games = division_round_up(points_remaining, lose_final_round_points)
         win_final_round_games = division_round_up(points_remaining, win_final_round_points)
         
+        display = f"Points remaining: {points_remaining}\n"
+        
         # Estimated amount of play time to reach the goal points
         total_minutes = (points_remaining / 2) * game_time
-        hours = int(total_minutes // 60)
-        minutes = int(total_minutes % 60)
-        days = hours // 24
-        display = f"Points remaining: {points_remaining}\n"
-        if days > 0:
-            display += f"Estimated play time: {days} days, {hours%24} hours, {minutes} minutes\n"
-        elif hours > 0:
-            display += f"Estimated play time: {hours} hours, {minutes} minutes\n"
-        else:
-            display += f"Estimated play time: {minutes} minutes\n"
+        display += convert_time(total_minutes)
         
-        # Estimated number of games required in each round to reach the goal points        
-        display += f"Round one games: {round_one_games}\n"
-        display += f"Round two games: {round_two_games}\n"
-        display += f"Lose final round games: {lose_final_round_games}\n"
-        display += f"Win final round games: {win_final_round_games}\n"
+        # if days > 0:
+            # display += f"Estimated play time: {days} days, {hours%24} hours, {minutes} minutes\n"
+        # elif hours > 0:
+            # display += f"Estimated play time: {hours} hours, {minutes} minutes\n"
+        # else:
+            # display += f"Estimated play time: {minutes} minutes\n"
+        
+        # Estimated number of games required in each round to reach the goal points
+        new_data[0] = (round_one_games, convert_time(round_one_games * round_one_time))
+        new_data[1] = (round_two_games, convert_time(round_two_games * round_two_time))
+        new_data[2] = (lose_final_round_games, convert_time(lose_final_round_games * lose_final_round_time))
+        new_data[3] = (win_final_round_games, convert_time(win_final_round_games * win_final_round_time))
+        for i, (games, time) in enumerate(new_data):
+            updated_table_rows[i][1] = games
+            updated_table_rows[i][2] = time
         
         # The amount of points needed per day to reach the goal points
         days_remaining = (season_end_date - today_date).days
@@ -104,9 +167,13 @@ def calculate():
         display += f"Days left in the season: {days_remaining}\n"
         display += f"Points needed per day: {daily_points}\n"
         
+        # Update the table that shows info on the games
+        refresh_games_table()
+        
         result_label.config(text=display)
     except ValueError:
         result_label.config(text="Please enter a valid number.")
+
 
 root = tk.Tk()
 root.title("World Tour Points Calculator")
@@ -141,5 +208,29 @@ calc_button.pack(pady=5)
 result_label = tk.Label(root, text="", font=("Arial", 12))
 result_label.pack(pady=30)
 
-root.geometry("500x450")
+# Define columns (not including the special '#0' column)
+columns = ("round_type", "number_of_games", "playtime")
+
+# Create Treeview with these columns, show="headings" hides the default first column
+tree = ttk.Treeview(root, columns=columns, show="headings")
+
+# Define headings and their display text
+tree.heading("round_type", text="Round Type")
+tree.heading("number_of_games", text="Number of Games")
+tree.heading("playtime", text="Playtime")
+
+# Define column widths and alignment
+tree.column("round_type", width=150, anchor=tk.W)
+tree.column("number_of_games", width=120, anchor=tk.CENTER)
+tree.column("playtime", width=150, anchor=tk.CENTER)
+
+# Insert rows
+tree.insert("", "end", values=("Round one games", round_one_games, round_one_time))
+tree.insert("", "end", values=("Round two games", round_two_games, round_two_time))
+tree.insert("", "end", values=("Lose final round games", lose_final_round_games, lose_final_round_time))
+tree.insert("", "end", values=("Win final round games", win_final_round_games, win_final_round_time))
+
+tree.pack(expand=True, fill=tk.BOTH)
+
+#root.geometry("500x450")
 root.mainloop()
