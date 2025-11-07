@@ -4,7 +4,6 @@ def calculate():
     try:
         current_points = int(entry.get())
         points_left = 2400 - current_points
-        # Calculation: (points_left / 2) * 10 = total minutes
         total_minutes = (points_left / 2) * 10
 
         hours = int(total_minutes // 60)
