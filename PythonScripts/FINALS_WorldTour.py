@@ -1,42 +1,38 @@
 import tkinter as tk
 
-def click(event):
-    text = event.widget.cget("text")
-    if text == "=":
-        try:
-            result = eval(str(screen.get()))
-            screen.set(result)
-        except Exception:
-            screen.set("Error")
-    elif text == "C":
-        screen.set("")
-    else:
-        screen.set(screen.get() + text)
+def calculate():
+    try:
+        current_points = int(entry.get())
+        points_left = 2400 - current_points
+        # Calculation: (points_left / 2) * 10 = total minutes
+        total_minutes = (points_left / 2) * 10
+
+        hours = int(total_minutes // 60)
+        minutes = int(total_minutes % 60)
+        days = hours // 24
+        display = f"Points to target: {points_left}\n"
+        if days > 0:
+            display += f"Estimated time: {days} days, {hours%24} hours, {minutes} minutes"
+        elif hours > 0:
+            display += f"Estimated time: {hours} hours, {minutes} minutes"
+        else:
+            display += f"Estimated time: {minutes} minutes"
+        result_label.config(text=display)
+    except ValueError:
+        result_label.config(text="Please enter a valid number.")
 
 root = tk.Tk()
-root.title("Simple Calculator")
+root.title("World Tour Points Calculator")
 
-screen = tk.StringVar()
-entry = tk.Entry(root, textvar=screen, font="Arial 20")
-entry.pack(fill="both", ipadx=8)
+tk.Label(root, text="Enter current points:").pack(pady=5)
+entry = tk.Entry(root)
+entry.pack(pady=5)
 
-button_frame = tk.Frame(root)
-button_frame.pack()
+calc_button = tk.Button(root, text="Calculate", command=calculate)
+calc_button.pack(pady=5)
 
-buttons = [
-    ['7', '8', '9', '/'],
-    ['4', '5', '6', '*'],
-    ['1', '2', '3', '-'],
-    ['C', '0', '=', '+']
-]
+result_label = tk.Label(root, text="", font=("Arial", 12))
+result_label.pack(pady=10)
 
-for row in buttons:
-    f = tk.Frame(button_frame)
-    f.pack()
-    for btn_text in row:
-        b = tk.Button(f, text=btn_text, font="Arial 20", padx=10, pady=10)
-        b.pack(side="left", padx=5, pady=5)
-        b.bind("<Button-1>", click)
-
-root.geometry("300x400")
+root.geometry("350x180")
 root.mainloop()
