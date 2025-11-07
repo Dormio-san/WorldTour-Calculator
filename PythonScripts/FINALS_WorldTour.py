@@ -10,6 +10,17 @@
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
 import tkinter as tk
+import math
+
+# Points awarded for each round in world tour
+lose_round_one_points = 2
+lose_round_two_points = 6
+lose_final_round_points = 14
+win_final_round_points = 25
+
+# Estimated time each game will take
+game_time = 10
+
 
 # Options in "Label: value" format
 rank_options = [
@@ -39,6 +50,10 @@ rank_options = [
     ("Emerald 1", 2400),
 ]
 
+# Perform a division operation and round up the result
+def division_round_up(dividend, divisor):
+    return math.ceil(dividend / divisor)
+    
 def on_rank_selected(var_name, index, mode):
     # When user selects, update goal_points
     label, points = rank_dict[rank_var.get()]
@@ -48,20 +63,34 @@ def on_rank_selected(var_name, index, mode):
 
 def calculate():
     try:
+        # The amount of points left to reach the goal points
         current_points = int(entry.get())
         points_left = goal_points - current_points
-        total_minutes = (points_left / 2) * 10
-
+        
+        # The number of games needed to reach the goal points
+        # Includes losing first round, losing second round, losing final round, and winning final round
+        round_one_games = division_round_up(points_left, lose_round_one_points)
+        round_two_games = division_round_up(points_left, lose_round_two_points)
+        lose_final_round_games = division_round_up(points_left, lose_final_round_points)
+        win_final_round_games = division_round_up(points_left, win_final_round_points)
+        
+        # Estimated amount of play time to reach the goal points
+        total_minutes = (points_left / 2) * game_time
         hours = int(total_minutes // 60)
         minutes = int(total_minutes % 60)
         days = hours // 24
         display = f"Points to target: {points_left}\n"
         if days > 0:
-            display += f"Estimated time: {days} days, {hours%24} hours, {minutes} minutes"
+            display += f"Estimated time: {days} days, {hours%24} hours, {minutes} minutes\n"
         elif hours > 0:
-            display += f"Estimated time: {hours} hours, {minutes} minutes"
+            display += f"Estimated time: {hours} hours, {minutes} minutes\n"
         else:
-            display += f"Estimated time: {minutes} minutes"
+            display += f"Estimated time: {minutes} minutes\n"
+            
+        display += f"Round one games: {round_one_games}\n"
+        display += f"Round two games: {round_two_games}\n"
+        display += f"Lose final round games: {lose_final_round_games}\n"
+        display += f"Win final round games: {win_final_round_games}\n"
         result_label.config(text=display)
     except ValueError:
         result_label.config(text="Please enter a valid number.")
@@ -99,5 +128,5 @@ calc_button.pack(pady=5)
 result_label = tk.Label(root, text="", font=("Arial", 12))
 result_label.pack(pady=10)
 
-root.geometry("500x300")
+root.geometry("500x400")
 root.mainloop()
