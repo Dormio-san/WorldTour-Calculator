@@ -162,7 +162,7 @@ def calculate():
         days_remaining = (season_end_date - todays_date).days
         daily_points = points_remaining // days_remaining
         display += f"Days left in the season: {days_remaining}\n"
-        display += f"Points needed per day: {daily_points}\n"
+        display += f"Points needed per day: {daily_points}"
         
         result_label.config(text=display)
     except ValueError:
@@ -173,6 +173,12 @@ def calculate():
 root = tk.Tk()
 root.title("World Tour Points Calculator")
 
+# Set style for various UI elements
+style = ttk.Style(root)
+style.theme_use("clam")
+style.configure("Treeview", font=("Gadugi", 10))
+style.configure("Treeview.Heading", font=("Gadugi", 11))
+
 # Create the dropdown list of badge options
 badge_dict = {f"{label}: {points}": (label, points) for label, points in badge_options}
 dropdown_options = list(badge_dict.keys())
@@ -181,6 +187,7 @@ badge_var = tk.StringVar()
 badge_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
 
 badge_menu = tk.OptionMenu(root, badge_var, *dropdown_options)
+badge_menu.config(font=("Gadugi", 11))
 badge_menu.pack(pady=(30, 0))
 
 # Whenever badge_var is changed, on_badge_selected will run
@@ -196,8 +203,9 @@ on_badge_selected("name", 1, "mode")
 
 # Create the entry box and label for it
 tk.Label(root, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
-entry = tk.Entry(root, font=("Gadugi", 10))
+entry = ttk.Entry(root, font=("Gadugi", 10))
 entry.pack(pady=5)
+#entry.insert(0, 0)
 
 # Calculate button that will perform the calculations and output data when clicked
 calc_button = tk.Button(root, text="Calculate", font=("Gadugi", 10), command=calculate)
@@ -210,23 +218,22 @@ result_label.pack(pady=(25, 0))
 # Create the games table that will display the type of round,
 # the number to play to reach the goal points, and the amount of time it will take
 columns = ("round_type", "number_of_games", "playtime")
-
 tree = ttk.Treeview(root, columns=columns, show="headings")
 
 tree.heading("round_type", text="Round Type")
 tree.heading("number_of_games", text="Number of Games")
 tree.heading("playtime", text="Playtime")
 
-tree.column("round_type", width=120, anchor=tk.W)
-tree.column("number_of_games", width=120, anchor=tk.CENTER)
-tree.column("playtime", width=175, anchor=tk.CENTER)
+tree.column("round_type", width=145, anchor=tk.W)
+tree.column("number_of_games", width=145, anchor=tk.CENTER)
+tree.column("playtime", width=200, anchor=tk.CENTER)
 
-tree.insert("", "end", values=games_table_rows[0])
-tree.insert("", "end", values=games_table_rows[1])
-tree.insert("", "end", values=games_table_rows[2])
-tree.insert("", "end", values=games_table_rows[3])
+tree.insert("", "end", values=(row_labels[0], round_one_games, convert_time(round_one_time)))
+tree.insert("", "end", values=(row_labels[1], round_two_games, convert_time(round_two_time)))
+tree.insert("", "end", values=(row_labels[2], lose_final_round_games, convert_time(lose_final_round_time)))
+tree.insert("", "end", values=(row_labels[3], win_final_round_games, convert_time(win_final_round_time)))
 
-tree.pack(padx = 50, pady = 50)
+tree.pack(padx = 50, pady = (40, 50))
 
 #root.geometry("500x450")
 root.mainloop()
