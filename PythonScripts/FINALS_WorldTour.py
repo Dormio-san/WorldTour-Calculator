@@ -5,10 +5,12 @@
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
+
 import tkinter as tk
 import math
 from datetime import date
 from tkinter import ttk
+
 
 # Estimated time each game will take
 game_time = 10
@@ -19,11 +21,11 @@ lose_round_two_points = 6
 lose_final_round_points = 14
 win_final_round_points = 25
 
-# Number of games needed to reach the goal points (default is 0)
-round_one_games = 0
-round_two_games = 0
-lose_final_round_games = 0
-win_final_round_games = 0
+# Number of games needed to reach the goal points (default is 1)
+round_one_games = 1
+round_two_games = 1
+lose_final_round_games = 1
+win_final_round_games = 1
 
 # Time spent playing for each type of round
 round_one_time = game_time
@@ -33,11 +35,10 @@ win_final_round_time = game_time * 3
 
 # Dates used to determine how much time is left in the season
 season_end_date = date(2025, 12, 11)
-today_date = date.today()
+todays_date = date.today()
 
-
-# Options in "Label: value" format
-rank_options = [
+# The different badges the user can choose from to be their goal
+badge_options = [
     ("Bronze 4", 25),
     ("Bronze 3", 50),
     ("Bronze 2", 75),
@@ -66,22 +67,23 @@ rank_options = [
 
 # Labels for rows in the games table
 row_labels = [
-    "Round one games",
-    "Round two games",
-    "Lose final round games",
-    "Win final round games",
+    "Round one",
+    "Round two",
+    "Lose final round",
+    "Win final round",
 ]
 
 # Full table rows in the games table
-updated_table_rows = [
+games_table_rows = [
     [row_labels[0], round_one_games, round_one_time],
     [row_labels[1], round_two_games, round_two_time],
     [row_labels[2], lose_final_round_games, lose_final_round_time],
     [row_labels[3], win_final_round_games, win_final_round_time],
 ]
 
-# Updated data used to update the data in table rows
-new_data = [
+# Modified when a calculation occurs
+# Number of games and time will be updated and then used to update the data in the games table rows
+updated_games_data = [
     (round_one_games, round_one_time),
     (round_two_games, round_two_time),
     (lose_final_round_games, lose_final_round_time),
@@ -99,6 +101,7 @@ def convert_time(bulk_minutes):
     minutes = int(bulk_minutes % 60)
     days = hours // 24
     
+    # Format differently if the result contains days, hours, or only minutes
     if days > 0:
         return f"{days} days, {hours%24} hours, {minutes} minutes\n"
     elif hours > 0:
@@ -107,123 +110,123 @@ def convert_time(bulk_minutes):
         return f"{minutes} minutes\n"
  
  
-# Refresh the table that contains number of games and estimated play time for each round type
+# Refresh the games table
 def refresh_games_table():
     # Clear all existing rows
     for item in tree.get_children():
         tree.delete(item)
 
     # Insert updated rows
-    for row in updated_table_rows:
+    for row in games_table_rows:
         tree.insert("", "end", values=row)
 
     
-def on_rank_selected(var_name, index, mode):
-    # When user selects, update goal_points
-    label, points = rank_dict[rank_var.get()]
+# When a badge is selected, update the goal points and its display 
+def on_badge_selected(var_name, index, mode):
+    label, points = badge_dict[badge_var.get()]
     global goal_points
     goal_points = points
     goal_label.config(text=f"Goal points: {goal_points} ({label})")
 
 
+# Calculate the different data points that will be shown to the user
 def calculate():
     try:
         # The amount of points left to reach the goal points
         current_points = int(entry.get())
         points_remaining = goal_points - current_points
+        display = f"Points remaining: {points_remaining}\n"
         
-        # The number of games needed to reach the goal points
+        # Number of games required in each round to reach the goal points
         # Includes losing first round, losing second round, losing final round, and winning final round
         round_one_games = division_round_up(points_remaining, lose_round_one_points)
         round_two_games = division_round_up(points_remaining, lose_round_two_points)
         lose_final_round_games = division_round_up(points_remaining, lose_final_round_points)
         win_final_round_games = division_round_up(points_remaining, win_final_round_points)
         
-        display = f"Points remaining: {points_remaining}\n"
+        # Update the data in the games table and refresh the table to display the updated data
+        updated_games_data[0] = (round_one_games, convert_time(round_one_games * round_one_time))
+        updated_games_data[1] = (round_two_games, convert_time(round_two_games * round_two_time))
+        updated_games_data[2] = (lose_final_round_games, convert_time(lose_final_round_games * lose_final_round_time))
+        updated_games_data[3] = (win_final_round_games, convert_time(win_final_round_games * win_final_round_time))
+        for i, (games, time) in enumerate(updated_games_data):
+            games_table_rows[i][1] = games
+            games_table_rows[i][2] = time
+        refresh_games_table()
         
         # Estimated amount of play time to reach the goal points
         total_minutes = (points_remaining / 2) * game_time
         display += f"Estimated play time: {convert_time(total_minutes)}"
         
-        # Estimated number of games required in each round to reach the goal points
-        new_data[0] = (round_one_games, convert_time(round_one_games * round_one_time))
-        new_data[1] = (round_two_games, convert_time(round_two_games * round_two_time))
-        new_data[2] = (lose_final_round_games, convert_time(lose_final_round_games * lose_final_round_time))
-        new_data[3] = (win_final_round_games, convert_time(win_final_round_games * win_final_round_time))
-        for i, (games, time) in enumerate(new_data):
-            updated_table_rows[i][1] = games
-            updated_table_rows[i][2] = time
-        
         # The amount of points needed per day to reach the goal points
-        days_remaining = (season_end_date - today_date).days
-        daily_points = points_remaining / days_remaining
+        days_remaining = (season_end_date - todays_date).days
+        daily_points = points_remaining // days_remaining
         display += f"Days left in the season: {days_remaining}\n"
         display += f"Points needed per day: {daily_points}\n"
-        
-        # Update the table that shows info on the games
-        refresh_games_table()
         
         result_label.config(text=display)
     except ValueError:
         result_label.config(text="Please enter a valid number.")
 
 
+# Setup UI foundation
 root = tk.Tk()
 root.title("World Tour Points Calculator")
 
-rank_dict = {f"{label}: {points}": (label, points) for label, points in rank_options}
-dropdown_options = list(rank_dict.keys())
+# Create the dropdown list of badge options
+badge_dict = {f"{label}: {points}": (label, points) for label, points in badge_options}
+dropdown_options = list(badge_dict.keys())
 
-rank_var = tk.StringVar()
-rank_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
+badge_var = tk.StringVar()
+badge_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
 
-goal_points = rank_dict[rank_var.get()][1]
+badge_menu = tk.OptionMenu(root, badge_var, *dropdown_options)
+badge_menu.pack(pady=(30, 0))
 
-rank_menu = tk.OptionMenu(root, rank_var, *dropdown_options)
-rank_menu.pack(pady=8)
+# Whenever badge_var is changed, on_badge_selected will run
+badge_var.trace_add("write", on_badge_selected)
 
-# Whenever rank_var is changed, on_rank_selected will run
-rank_var.trace_add("write", on_rank_selected)
-
-goal_label = tk.Label(root, text=f"Goal points: {goal_points}")
-goal_label.pack(pady=8)
+# Setup the goal points label
+goal_points = badge_dict[badge_var.get()][1]
+goal_label = tk.Label(root, text=f"Goal points: {goal_points}", font=("Gadugi", 10))
+goal_label.pack(pady=(10, 20))
 
 # Update the goal label text when the game first runs
-on_rank_selected("name", 1, "mode")
+on_badge_selected("name", 1, "mode")
 
-tk.Label(root, text="Enter current points:").pack(pady=5)
-entry = tk.Entry(root)
+# Create the entry box and label for it
+tk.Label(root, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
+entry = tk.Entry(root, font=("Gadugi", 10))
 entry.pack(pady=5)
 
-calc_button = tk.Button(root, text="Calculate", command=calculate)
+# Calculate button that will perform the calculations and output data when clicked
+calc_button = tk.Button(root, text="Calculate", font=("Gadugi", 10), command=calculate)
 calc_button.pack(pady=5)
 
-result_label = tk.Label(root, text="", font=("Arial", 12))
-result_label.pack(pady=30)
+# Label that will be updated with calculated data
+result_label = tk.Label(root, text="", font=("Gadugi", 12))
+result_label.pack(pady=(25, 0))
 
-# Define columns in the table
+# Create the games table that will display the type of round,
+# the number to play to reach the goal points, and the amount of time it will take
 columns = ("round_type", "number_of_games", "playtime")
 
-# Create Treeview with these columns, show="headings" hides the default first column
 tree = ttk.Treeview(root, columns=columns, show="headings")
 
-# Define headings and their display text
 tree.heading("round_type", text="Round Type")
 tree.heading("number_of_games", text="Number of Games")
 tree.heading("playtime", text="Playtime")
 
-# Define column widths and alignment
-tree.column("round_type", width=150, anchor=tk.W)
+tree.column("round_type", width=120, anchor=tk.W)
 tree.column("number_of_games", width=120, anchor=tk.CENTER)
-tree.column("playtime", width=150, anchor=tk.CENTER)
+tree.column("playtime", width=175, anchor=tk.CENTER)
 
-# Insert rows
-tree.insert("", "end", values=("Round one games", round_one_games, round_one_time))
-tree.insert("", "end", values=("Round two games", round_two_games, round_two_time))
-tree.insert("", "end", values=("Lose final round games", lose_final_round_games, lose_final_round_time))
-tree.insert("", "end", values=("Win final round games", win_final_round_games, win_final_round_time))
+tree.insert("", "end", values=games_table_rows[0])
+tree.insert("", "end", values=games_table_rows[1])
+tree.insert("", "end", values=games_table_rows[2])
+tree.insert("", "end", values=games_table_rows[3])
 
-tree.pack(expand=True, fill=tk.BOTH)
+tree.pack(padx = 50, pady = 50)
 
 #root.geometry("500x450")
 root.mainloop()
