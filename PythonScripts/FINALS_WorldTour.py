@@ -1,7 +1,6 @@
 # Planned features: 
 # Have points to next rank stat
 # Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
-# Daily playtime: minimum amount of time needed to play each day.
 # Weighted calculations for game time. Maybe 60% of time player gets round 1, so that time will be used more.
 # Inputs for player to vary weight on rounds
 # Potential additions: projected completion (based on time left and progress so far)
@@ -158,13 +157,16 @@ def calculate():
         
         # Estimated amount of play time to reach the goal points
         total_minutes = (points_remaining / 2) * game_time
-        display += f"Estimated play time: {convert_time(total_minutes)}"
+        display += f"Estimated play time: {convert_time(total_minutes)}\n"
         
         # The amount of points needed per day to reach the goal points
         days_remaining = (season_end_date - todays_date).days
         daily_points = points_remaining // days_remaining
-        display += f"Days left in the season: {days_remaining}\n"
-        display += f"Points needed per day: {daily_points}"
+        display += f"Days left in season: {days_remaining}\n"
+        display += f"Daily points: {daily_points}\n"
+        
+        # Maximum time to play each day to reach the goal points (all round 1 games)
+        display += f"Daily play time: {convert_time(total_minutes / days_remaining)}"
         
         result_label.config(text=display)
     except ValueError:
