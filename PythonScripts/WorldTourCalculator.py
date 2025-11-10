@@ -14,7 +14,10 @@ from tkinter import ttk
 
 
 # Estimated time each game will take
-game_time = 10
+# Additional game time includes things like queue time, loading time, and transition time between matches
+base_game_time = 10
+additional_game_time = 3
+game_time = base_game_time + additional_game_time
 
 # Points awarded for each round in world tour
 lose_round_one_points = 2
