@@ -224,15 +224,15 @@ result_label.pack(pady=(25, 0))
 
 # Create the games table that will display the type of round,
 # the number to play to reach the goal points, and the amount of time it will take
-columns = ("round_type", "number_of_games", "playtime")
+columns = ("round_type", "number_of_rounds", "playtime")
 tree = ttk.Treeview(root, columns=columns, show="headings")
 
 tree.heading("round_type", text="Round Type")
-tree.heading("number_of_games", text="Number of Games")
+tree.heading("number_of_rounds", text="Number of Rounds")
 tree.heading("playtime", text="Playtime")
 
 tree.column("round_type", width=145, anchor=tk.W)
-tree.column("number_of_games", width=145, anchor=tk.CENTER)
+tree.column("number_of_rounds", width=145, anchor=tk.CENTER)
 tree.column("playtime", width=200, anchor=tk.CENTER)
 
 tree.insert("", "end", values=(row_labels[0], round_one_games, convert_time(round_one_time)))
