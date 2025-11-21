@@ -1,8 +1,6 @@
 # Planned features: 
 # Have points to next rank stat
 # Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
-# Weighted calculations for game time. Maybe 60% of time player gets round 1, so that time will be used more.
-# Inputs for player to vary weight on rounds
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
@@ -12,6 +10,10 @@ import math
 from datetime import date
 from tkinter import ttk
 
+
+# Setup UI foundation
+root = tk.Tk()
+root.title("World Tour Points Calculator")
 
 # Estimated time each game will take
 # Additional game time includes things like queue time, loading time, and transition time between matches
@@ -94,6 +96,17 @@ updated_games_data = [
     (win_final_round_games, win_final_round_time),
 ]
 
+# Weights for how often a certain type of round will occur
+round_one_weight = tk.StringVar(value="50")
+round_two_weight = tk.StringVar(value="25")
+lose_final_round_weight = tk.StringVar(value="15")
+win_final_round_weight = tk.StringVar(value="10")
+
+round_weights_vars = [round_one_weight, round_two_weight, lose_final_round_weight, win_final_round_weight]
+
+for i, var in enumerate(round_weights_vars):
+    var.trace_add("write", lambda *args, idx=i: validate_weight(idx))
+
 # Perform a division operation and round up the result
 def division_round_up(dividend, divisor):
     return math.ceil(dividend / divisor)
@@ -133,11 +146,30 @@ def on_badge_selected(var_name, index, mode):
     goal_label.config(text=f"Goal points: {goal_points} ({label})")
 
 
+# Validate the inputted weight from the user to make sure it doesn't exceed the combined max of 100
+def validate_weight(index, *args):
+    vals = []
+    for v in round_weights_vars:
+        try:
+            vals.append(int(v.get()))
+        except ValueError:
+            vals.append(0)
+    
+    # Calculate total minus value from this entry
+    other_sum = sum(vals) - vals[index]
+    # The max value to allow in this box
+    max_allowed = max(0, 100 - other_sum)
+
+    # If value entered is above max, set to the maximum allowed value
+    if vals[index] > max_allowed:
+        round_weights_vars[index].set(str(max_allowed))
+
+
 # Calculate the different data points that will be shown to the user
 def calculate():
     try:
         # The amount of points left to reach the goal points
-        current_points = int(entry.get())
+        current_points = int(points_entry.get())
         points_remaining = goal_points - current_points
         display = f"Points remaining: {points_remaining}\n"
         
@@ -148,19 +180,29 @@ def calculate():
         lose_final_round_games = division_round_up(points_remaining, lose_final_round_points)
         win_final_round_games = division_round_up(points_remaining, win_final_round_points)
         
+        # Playtime to reach goal points if only round type specified is played
+        round_one_playtime = round_one_games * round_one_time
+        round_two_playtime = round_two_games * round_two_time
+        lose_final_round_playtime = lose_final_round_games * lose_final_round_time
+        win_final_round_playtime = win_final_round_games * win_final_round_time
+        
         # Update the data in the games table and refresh the table to display the updated data
-        updated_games_data[0] = (round_one_games, convert_time(round_one_games * round_one_time))
-        updated_games_data[1] = (round_two_games, convert_time(round_two_games * round_two_time))
-        updated_games_data[2] = (lose_final_round_games, convert_time(lose_final_round_games * lose_final_round_time))
-        updated_games_data[3] = (win_final_round_games, convert_time(win_final_round_games * win_final_round_time))
+        updated_games_data[0] = (round_one_games, convert_time(round_one_playtime))
+        updated_games_data[1] = (round_two_games, convert_time(round_two_playtime))
+        updated_games_data[2] = (lose_final_round_games, convert_time(lose_final_round_playtime))
+        updated_games_data[3] = (win_final_round_games, convert_time(win_final_round_playtime))
         for i, (games, time) in enumerate(updated_games_data):
             games_table_rows[i][1] = games
             games_table_rows[i][2] = time
         refresh_games_table()
         
-        # Estimated amount of play time to reach the goal points
-        total_minutes = (points_remaining / 2) * game_time
-        display += f"Estimated play time: {convert_time(total_minutes)}\n"
+        # Calculate playtime based on the chance of each round type occurring
+        playtimes  = [round_one_playtime, round_two_playtime, lose_final_round_playtime, win_final_round_playtime]
+        round_weights = [float(var.get() or 0) for var in round_weights_vars]
+        weighted_playtime = sum((w / 100) * t for w, t in zip(round_weights, playtimes))
+        
+        # Estimated amount of play time to reach the goal points based on round weights
+        display += f"Estimated play time: {convert_time(weighted_playtime)}\n"
         
         # The amount of points needed per day to reach the goal points
         days_remaining = (season_end_date - todays_date).days
@@ -168,17 +210,14 @@ def calculate():
         display += f"Days left in season: {days_remaining}\n"
         display += f"Daily points: {daily_points}\n"
         
-        # Maximum time to play each day to reach the goal points (all round 1 games)
-        display += f"Daily play time: {convert_time(total_minutes / days_remaining)}"
+        # Maximum and weighted time to play each day to reach the goal points
+        display += f"Max daily play time: {convert_time(round_one_playtime / days_remaining)}"
+        display += f"Weighted daily play time: {convert_time(weighted_playtime / days_remaining)}"
         
         result_label.config(text=display)
     except ValueError:
-        result_label.config(text="Please enter a valid number.")
+        result_label.config(text="Please enter a valid points value.")
 
-
-# Setup UI foundation
-root = tk.Tk()
-root.title("World Tour Points Calculator")
 
 # Set style for various UI elements
 style = ttk.Style(root)
@@ -208,15 +247,39 @@ goal_label.pack(pady=(10, 20))
 # Update the goal label text when the game first runs
 on_badge_selected("name", 1, "mode")
 
-# Create the entry box and label for it
+# Create the points entry box and label for it
 tk.Label(root, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
-entry = ttk.Entry(root, font=("Gadugi", 10))
-entry.pack(pady=5)
-#entry.insert(0, 0)
+points_entry = ttk.Entry(root, font=("Gadugi", 10))
+points_entry.pack(pady=(5, 25))
+#points_entry.insert(0, 0)
+
+# Create the labels and entry boxes for round weights
+tk.Label(root, text="Percent chance of getting each round type (total 100%):", font=("Gadugi", 12)).pack(pady=15)
+
+weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
+
+# Container frame to hold the two rows
+round_weights_frame = tk.Frame(root)
+round_weights_frame.pack()
+
+# Create two row frames packed vertically
+row_frames = []
+for row_index in range(2):
+    row_frame = tk.Frame(round_weights_frame)
+    row_frame.pack(fill='x')
+    row_frames.append(row_frame)
+
+# Loop through each label/entry pair and put them in the appropriate row frame
+for i in range(4):
+    cell_frame = tk.Frame(row_frames[i // 2])
+    cell_frame.pack(side='left', padx=10, pady=5)
+
+    tk.Label(cell_frame, text=weight_entry_labels[i], font=("Gadugi", 11)).pack()
+    tk.Entry(cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
 
 # Calculate button that will perform the calculations and output data when clicked
 calc_button = tk.Button(root, text="Calculate", font=("Gadugi", 10), command=calculate)
-calc_button.pack(pady=5)
+calc_button.pack(pady=(20, 0))
 
 # Label that will be updated with calculated data
 result_label = tk.Label(root, text="", font=("Gadugi", 12))
