@@ -171,7 +171,7 @@ def calculate():
         # The amount of points left to reach the goal points
         current_points = int(points_entry.get())
         points_remaining = goal_points - current_points
-        display = f"Points remaining: {points_remaining}\n"
+        display = f"\n Points remaining: {points_remaining}\n"
         
         # Number of games required in each round to reach the goal points
         # Includes losing first round, losing second round, losing final round, and winning final round
@@ -282,8 +282,11 @@ calc_button = tk.Button(root, text="Calculate", font=("Gadugi", 10), command=cal
 calc_button.pack(pady=(20, 0))
 
 # Label that will be updated with calculated data
-result_label = tk.Label(root, text="", font=("Gadugi", 12))
-result_label.pack(pady=(25, 0))
+result_frame = ttk.Frame(root)
+result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
+
+result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
+result_label.pack(pady=15, padx=15)
 
 # Create the games table that will display the type of round,
 # the number to play to reach the goal points, and the amount of time it will take
@@ -303,7 +306,8 @@ tree.insert("", "end", values=(row_labels[1], round_two_games, convert_time(roun
 tree.insert("", "end", values=(row_labels[2], lose_final_round_games, convert_time(lose_final_round_time)))
 tree.insert("", "end", values=(row_labels[3], win_final_round_games, convert_time(win_final_round_time)))
 
-tree.pack(padx = 50, pady = (40, 50))
+tree.pack(padx = 50, pady = (40, 50), fill=tk.NONE)
+
 
 #root.geometry("500x450")
 root.mainloop()
