@@ -4,6 +4,8 @@
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
+# To build the calculator, run "pyinstaller --onefile --windowed WorldTourCalculator.py"
+
 
 import tkinter as tk
 import math
