@@ -3,6 +3,7 @@
 # Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
+# Quick play calculator. Features mostly the same things as world tour, but instead gives data for quick play.
 
 # To build the calculator, run "pyinstaller --onefile --windowed WorldTourCalculator.py"
 
@@ -16,6 +17,19 @@ from tkinter import ttk
 # Setup UI foundation
 root = tk.Tk()
 root.title("World Tour Points Calculator")
+
+# Create calculator tabs
+calc_tabs = ttk.Notebook(root)
+
+world_tour_tab = tk.Frame(calc_tabs)
+quick_play_tab = tk.Frame(calc_tabs)
+world_tour_tab.pack(fill='both', expand=True, padx=100, pady=100)
+quick_play_tab.pack(fill='both', expand=True)
+
+calc_tabs.add (world_tour_tab, text='World Tour')
+calc_tabs.add (quick_play_tab, text='Quick Play')
+
+calc_tabs.pack(expand=True, fill='both')
 
 # Estimated time each game will take
 # Additional game time includes things like queue time, loading time, and transition time between matches
@@ -226,6 +240,7 @@ style = ttk.Style(root)
 style.theme_use("clam")
 style.configure("Treeview", font=("Gadugi", 10))
 style.configure("Treeview.Heading", font=("Gadugi", 11))
+style.configure("TButton", font=("Gadugi", 10))
 
 # Create the dropdown list of badge options
 badge_dict = {f"{label}: {points}": (label, points) for label, points in badge_options}
@@ -234,7 +249,7 @@ dropdown_options = list(badge_dict.keys())
 badge_var = tk.StringVar()
 badge_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
 
-badge_menu = tk.OptionMenu(root, badge_var, *dropdown_options)
+badge_menu = tk.OptionMenu(world_tour_tab, badge_var, *dropdown_options)
 badge_menu.config(font=("Gadugi", 11))
 badge_menu.pack(pady=(30, 0))
 
@@ -243,25 +258,25 @@ badge_var.trace_add("write", on_badge_selected)
 
 # Setup the goal points label
 goal_points = badge_dict[badge_var.get()][1]
-goal_label = tk.Label(root, text=f"Goal points: {goal_points}", font=("Gadugi", 10))
+goal_label = tk.Label(world_tour_tab, text=f"Goal points: {goal_points}", font=("Gadugi", 10))
 goal_label.pack(pady=(10, 20))
 
 # Update the goal label text when the game first runs
 on_badge_selected("name", 1, "mode")
 
 # Create the points entry box and label for it
-tk.Label(root, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
-points_entry = ttk.Entry(root, font=("Gadugi", 10))
+tk.Label(world_tour_tab, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
+points_entry = ttk.Entry(world_tour_tab, font=("Gadugi", 10))
 points_entry.pack(pady=(5, 25))
 #points_entry.insert(0, 0)
 
 # Create the labels and entry boxes for round weights
-tk.Label(root, text="Percent chance of getting each round type (total 100%):", font=("Gadugi", 12)).pack(pady=15)
+tk.Label(world_tour_tab, text="Percent chance of getting each round type (total 100%):", font=("Gadugi", 12)).pack(pady=15)
 
 weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
 
 # Container frame to hold the two rows
-round_weights_frame = tk.Frame(root)
+round_weights_frame = tk.Frame(world_tour_tab)
 round_weights_frame.pack()
 
 # Create two row frames packed vertically
@@ -280,11 +295,11 @@ for i in range(4):
     tk.Entry(cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
 
 # Calculate button that will perform the calculations and output data when clicked
-calc_button = tk.Button(root, text="Calculate", font=("Gadugi", 10), command=calculate)
+calc_button = ttk.Button(world_tour_tab, text="Calculate", command=calculate)
 calc_button.pack(pady=(20, 0))
 
 # Label that will be updated with calculated data
-result_frame = ttk.Frame(root)
+result_frame = ttk.Frame(world_tour_tab)
 result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
 
 result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
@@ -293,7 +308,7 @@ result_label.pack(pady=15, padx=15)
 # Create the games table that will display the type of round,
 # the number to play to reach the goal points, and the amount of time it will take
 columns = ("round_type", "number_of_rounds", "playtime")
-tree = ttk.Treeview(root, columns=columns, show="headings")
+tree = ttk.Treeview(world_tour_tab, columns=columns, show="headings")
 
 tree.heading("round_type", text="Round Type")
 tree.heading("number_of_rounds", text="Number of Rounds")
