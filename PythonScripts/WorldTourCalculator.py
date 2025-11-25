@@ -60,7 +60,7 @@ season_end_date = date(2025, 12, 11)
 todays_date = date.today()
 
 # The different badges the user can choose from to be their goal
-badge_options = [
+world_tour_badge_options = [
     ("Bronze 4", 25),
     ("Bronze 3", 50),
     ("Bronze 2", 75),
@@ -243,7 +243,7 @@ style.configure("Treeview.Heading", font=("Gadugi", 11))
 style.configure("TButton", font=("Gadugi", 10))
 
 # Create the dropdown list of badge options
-badge_dict = {f"{label}: {points}": (label, points) for label, points in badge_options}
+badge_dict = {f"{label}: {points}": (label, points) for label, points in world_tour_badge_options}
 dropdown_options = list(badge_dict.keys())
 
 badge_var = tk.StringVar()
@@ -295,7 +295,7 @@ for i in range(4):
     tk.Entry(cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
 
 # Calculate button that will perform the calculations and output data when clicked
-calc_button = ttk.Button(world_tour_tab, text="Calculate", command=calculate)
+calc_button = ttk.Button(world_tour_tab, text="Calculate", command=calculate, cursor="question_arrow")
 calc_button.pack(pady=(20, 0))
 
 # Label that will be updated with calculated data
@@ -325,6 +325,39 @@ tree.insert("", "end", values=(row_labels[3], win_final_round_games, convert_tim
 
 tree.pack(padx = 50, pady = (40, 50), fill=tk.NONE)
 
+
+# Quick Play
+
+# The different badges the user can choose from to be their goal
+quick_play_badge_options = [
+    ("Bronze 4", 50),
+    ("Bronze 3", 100),
+    ("Bronze 2", 150),
+    ("Bronze 1", 200),
+    ("Silver 4", 300),
+    ("Silver 3", 400),
+    ("Silver 2", 500),
+    ("Silver 1", 600),
+    ("Gold 4", 775),
+    ("Gold 3", 950),
+    ("Gold 2", 1125),
+    ("Gold 1", 1300),
+]
+
+# Awarded point values
+# Quick cash
+first_place_quick_cash = 10
+second_place_quick_cash = 6
+third_place_quick_cash = 5
+
+# Team vs Team game modes (TDM, Power Shift, Head 2 Head)
+win_tvt = 10
+lose_tvt = 5
+
+def setup_quick_play_ui():
+    badge_dict = {f"{label}: {points}": (label, points) for label, points in quick_play_badge_options}
+    dropdown_options = list(badge_dict.keys())
+    badge_menu = tk.OptionMenu(quick_play_tab, badge_var, *dropdown_options)
 
 #root.geometry("500x450")
 root.mainloop()
