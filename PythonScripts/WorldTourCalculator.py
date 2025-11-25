@@ -9,9 +9,9 @@
 
 
 import tkinter as tk
+from tkinter import ttk
 import math
 from datetime import date
-from tkinter import ttk
 
 
 # Setup UI foundation
@@ -23,13 +23,25 @@ calc_tabs = ttk.Notebook(root)
 
 world_tour_tab = tk.Frame(calc_tabs)
 quick_play_tab = tk.Frame(calc_tabs)
-world_tour_tab.pack(fill='both', expand=True, padx=100, pady=100)
+world_tour_tab.pack(fill='both', expand=True)
 quick_play_tab.pack(fill='both', expand=True)
 
 calc_tabs.add (world_tour_tab, text='World Tour')
 calc_tabs.add (quick_play_tab, text='Quick Play')
 
 calc_tabs.pack(expand=True, fill='both')
+
+def on_tab_changed(event):
+    notebook = event.widget
+    selected_tab = notebook.select()
+    tab_index = notebook.index(selected_tab)
+    if tab_index == 0:
+        setup_world_tour_ui()
+    elif tab_index == 1:
+        setup_quick_play_ui()
+        
+calc_tabs.bind("<<NotebookTabChanged>>", on_tab_changed)
+
 
 # Estimated time each game will take
 # Additional game time includes things like queue time, loading time, and transition time between matches
@@ -354,10 +366,56 @@ third_place_quick_cash = 5
 win_tvt = 10
 lose_tvt = 5
 
+# When a badge is selected, update the goal points and its display 
+def qp_on_badge_selected(var_name, index, mode):
+    label, points = qp_badge_dict[qp_badge_var.get()]
+    global qp_goal_points
+    qp_goal_points = points
+    qp_goal_label.config(text=f"Goal points: {qp_goal_points} ({label})")
+
+qp_badge_dict = {f"{label}: {points}": (label, points) for label, points in quick_play_badge_options}
+qp_dropdown_options = list(qp_badge_dict.keys())
+
+qp_badge_var = tk.StringVar()
+qp_badge_var.set(qp_dropdown_options[-1])  # Default to Gold 1
+
+qp_badge_menu = tk.OptionMenu(quick_play_tab, qp_badge_var, *qp_dropdown_options)
+qp_badge_menu.config(font=("Gadugi", 11))
+qp_badge_menu.pack(pady=(30, 0))
+
+# Whenever badge_var is changed, on_badge_selected will run
+qp_badge_var.trace_add("write", qp_on_badge_selected)
+
+# Setup the goal points label
+qp_goal_points = qp_badge_dict[qp_badge_var.get()][1]
+qp_goal_label = tk.Label(quick_play_tab, text=f"Goal points: {qp_goal_points}", font=("Gadugi", 10))
+qp_goal_label.pack(pady=(10, 20))
+
 def setup_quick_play_ui():
-    badge_dict = {f"{label}: {points}": (label, points) for label, points in quick_play_badge_options}
-    dropdown_options = list(badge_dict.keys())
-    badge_menu = tk.OptionMenu(quick_play_tab, badge_var, *dropdown_options)
+    # badge_dict = {f"{label}: {points}": (label, points) for label, points in quick_play_badge_options}
+    # dropdown_options = list(badge_dict.keys())
+
+    # badge_menu['menu'].delete(0, 'end')
+    # for opt in dropdown_options:
+        # badge_menu['menu'].add_command(label=opt, command=tk._setit(var, opt))
+    # badge_var = tk.StringVar()
+    # badge_var.set(dropdown_options[-1])  # Default to Gold 1
+    # badge_var.trace_add("write", on_badge_selected)
+    
+    print("Setup quick play")
+    
+def setup_world_tour_ui():
+    # badge_dict = {f"{label}: {points}": (label, points) for label, points in world_tour_badge_options}
+    # dropdown_options = list(badge_dict.keys())
+    
+    # badge_menu['menu'].delete(0, 'end')
+    # for opt in dropdown_options:
+        # badge_menu['menu'].add_command(label=opt, command=tk._setit(var, opt))
+    # badge_var = tk.StringVar()
+    # badge_var.set(dropdown_options[-1])  # Default to Emerald 1
+    # badge_var.trace_add("write", on_badge_selected)
+    
+    print("Setup world tour")
 
 #root.geometry("500x450")
 root.mainloop()
