@@ -311,7 +311,7 @@ calc_button = ttk.Button(world_tour_tab, text="Calculate", command=calculate, cu
 calc_button.pack(pady=(20, 0))
 
 # Label that will be updated with calculated data
-result_frame = ttk.Frame(world_tour_tab)
+result_frame = ttk.Frame(root)
 result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
 
 result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
@@ -320,7 +320,7 @@ result_label.pack(pady=15, padx=15)
 # Create the games table that will display the type of round,
 # the number to play to reach the goal points, and the amount of time it will take
 columns = ("round_type", "number_of_rounds", "playtime")
-tree = ttk.Treeview(world_tour_tab, columns=columns, show="headings")
+tree = ttk.Treeview(root, columns=columns, show="headings")
 
 tree.heading("round_type", text="Round Type")
 tree.heading("number_of_rounds", text="Number of Rounds")
@@ -372,6 +372,57 @@ def qp_on_badge_selected(var_name, index, mode):
     global qp_goal_points
     qp_goal_points = points
     qp_goal_label.config(text=f"Goal points: {qp_goal_points} ({label})")
+    
+# Calculate the different data points that will be shown to the user
+def qp_calculate():
+    try:
+        # The amount of points left to reach the goal points
+        current_points = int(qp_points_entry.get())
+        points_remaining = qp_goal_points - current_points
+        display = f"\n Points remaining: {points_remaining}\n"
+        
+        # Number of games required for each amount of rewared points to reach the goal points
+        # Win tvt and 1st place quick cash are same value. 
+        # Lose tvt and 3rd place quick cash also same value.
+        win_games = division_round_up(points_remaining, win_tvt)
+        lose_games = division_round_up(points_remaining, lose_tvt)
+        second_place_qc_games = division_round_up(points_remaining, second_place_quick_cash)
+        
+        # Playtime to reach goal points if only type specified is played
+        win_playtime = win_games * game_time
+        lose_playtime = lose_games * game_time
+        second_place_qc_playtime = second_place_qc_games * game_time
+        
+        # Update the data in the games table and refresh the table to display the updated data
+        updated_games_data[0] = (win_games, convert_time(win_playtime))
+        updated_games_data[1] = (lose_games, convert_time(lose_playtime))
+        updated_games_data[2] = (second_place_qc_games, convert_time(second_place_qc_playtime))
+        for i, (games, time) in enumerate(updated_games_data):
+            games_table_rows[i][1] = games
+            games_table_rows[i][2] = time
+        refresh_games_table()
+        
+        # Calculate playtime based on the chance of each round type occurring
+        playtimes  = [win_playtime, lose_playtime, second_place_qc_playtime]
+        round_weights = [float(var.get() or 0) for var in round_weights_vars]
+        weighted_playtime = sum((w / 100) * t for w, t in zip(round_weights, playtimes))
+        
+        # Estimated amount of play time to reach the goal points based on round weights
+        display += f"Estimated play time: {convert_time(lose_playtime)}\n"
+        
+        # The amount of points needed per day to reach the goal points
+        days_remaining = (season_end_date - todays_date).days
+        daily_points = points_remaining // days_remaining
+        display += f"Days left in season: {days_remaining}\n"
+        display += f"Daily points: {daily_points}\n"
+        
+        # Maximum and weighted time to play each day to reach the goal points
+        display += f"Max daily play time: {convert_time(lose_playtime / days_remaining)}"
+        #display += f"Weighted daily play time: {convert_time(weighted_playtime / days_remaining)}"
+        
+        result_label.config(text=display)
+    except ValueError:
+        result_label.config(text="Please enter a valid points value.")
 
 qp_badge_dict = {f"{label}: {points}": (label, points) for label, points in quick_play_badge_options}
 qp_dropdown_options = list(qp_badge_dict.keys())
@@ -390,6 +441,18 @@ qp_badge_var.trace_add("write", qp_on_badge_selected)
 qp_goal_points = qp_badge_dict[qp_badge_var.get()][1]
 qp_goal_label = tk.Label(quick_play_tab, text=f"Goal points: {qp_goal_points}", font=("Gadugi", 10))
 qp_goal_label.pack(pady=(10, 20))
+
+# Update the goal label text when the game first runs
+qp_on_badge_selected("name", 1, "mode")
+
+# Create the points entry box and label for it
+tk.Label(quick_play_tab, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
+qp_points_entry = ttk.Entry(quick_play_tab, font=("Gadugi", 10))
+qp_points_entry.pack(pady=(5, 25))
+
+# Calculate button that will perform the calculations and output data when clicked
+qp_calc_button = ttk.Button(quick_play_tab, text="Calculate", command=qp_calculate, cursor="question_arrow")
+qp_calc_button.pack(pady=(20, 0))
 
 def setup_quick_play_ui():
     # badge_dict = {f"{label}: {points}": (label, points) for label, points in quick_play_badge_options}
