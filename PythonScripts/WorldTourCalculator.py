@@ -271,6 +271,7 @@ badge_menu.pack(pady=(0, 30))
 
 # Whenever badge_var is changed, on_badge_selected will run
 badge_var.trace_add("write", on_badge_selected)
+on_badge_selected("name", 1, 1)
 
 # Create the points entry box and label for it
 points_entry_frame = tk.Frame(world_tour_tab)
