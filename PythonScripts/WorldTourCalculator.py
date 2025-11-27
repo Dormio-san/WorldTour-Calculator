@@ -171,7 +171,7 @@ def on_badge_selected(var_name, index, mode):
     label, points = badge_dict[badge_var.get()]
     global goal_points
     goal_points = points
-    goal_label.config(text=f"Goal points: {goal_points} ({label})")
+    goal_label.config(text=f"Goal: {goal_points} ({label})")
 
 
 # Validate the inputted weight from the user to make sure it doesn't exceed the combined max of 100
@@ -254,6 +254,10 @@ style.configure("Treeview", font=("Gadugi", 10))
 style.configure("Treeview.Heading", font=("Gadugi", 11))
 style.configure("TButton", font=("Gadugi", 10))
 
+# Setup the goal points label
+goal_label = tk.Label(world_tour_tab, text=f"Select your goal", font=("Gadugi", 11))
+goal_label.pack(pady=(10, 8))
+
 # Create the dropdown list of badge options
 badge_dict = {f"{label}: {points}": (label, points) for label, points in world_tour_badge_options}
 dropdown_options = list(badge_dict.keys())
@@ -263,23 +267,20 @@ badge_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
 
 badge_menu = tk.OptionMenu(world_tour_tab, badge_var, *dropdown_options)
 badge_menu.config(font=("Gadugi", 11))
-badge_menu.pack(pady=(30, 0))
+badge_menu.pack(pady=(0, 30))
 
 # Whenever badge_var is changed, on_badge_selected will run
 badge_var.trace_add("write", on_badge_selected)
 
-# Setup the goal points label
-goal_points = badge_dict[badge_var.get()][1]
-goal_label = tk.Label(world_tour_tab, text=f"Goal points: {goal_points}", font=("Gadugi", 10))
-goal_label.pack(pady=(10, 20))
-
-# Update the goal label text when the game first runs
-on_badge_selected("name", 1, "mode")
-
 # Create the points entry box and label for it
-tk.Label(world_tour_tab, text="Enter current points:", font=("Gadugi", 12)).pack(pady=5)
-points_entry = ttk.Entry(world_tour_tab, font=("Gadugi", 10))
-points_entry.pack(pady=(5, 25))
+points_entry_frame = tk.Frame(world_tour_tab)
+points_entry_frame.pack(padx=5, pady=(5, 25))
+
+points_entry_label = tk.Label(points_entry_frame, text="Enter current points:", font=("Gadugi", 12))
+points_entry_label.grid(row=0, column=1, padx=5)
+
+points_entry = ttk.Entry(points_entry_frame, font=("Gadugi", 10))
+points_entry.grid(row=0, column=2, padx=5)
 #points_entry.insert(0, 0)
 
 # Create the labels and entry boxes for round weights
