@@ -14,6 +14,17 @@ import math
 from datetime import date
 
 
+tab_data = {
+    "World Tour Tab": {
+        "name": "World Tour",
+        "dropdown_options": world_tour_badge_options
+    },
+    "Quick Play Tab": {
+        "name": "Quick Play",
+        "dropdown_options": quick_play_badge_options
+    }
+}
+
 # Setup UI foundation
 root = tk.Tk()
 root.title("World Tour Points Calculator")
