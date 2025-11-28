@@ -13,46 +13,18 @@ from tkinter import ttk
 import math
 from datetime import date
 
-
-tab_data = {
-    "World Tour Tab": {
-        "name": "World Tour",
-        "dropdown_options": world_tour_badge_options
-    },
-    "Quick Play Tab": {
-        "name": "Quick Play",
-        "dropdown_options": quick_play_badge_options
-    }
-}
-
 # Setup UI foundation
 root = tk.Tk()
 root.title("World Tour Points Calculator")
 
-# Create calculator tabs
-calc_tabs = ttk.Notebook(root)
+# Set style for various UI elements
+style = ttk.Style(root)
+style.theme_use("clam")
+style.configure("Treeview", font=("Gadugi", 10))
+style.configure("Treeview.Heading", font=("Gadugi", 11))
+style.configure("TButton", font=("Gadugi", 10))
 
-world_tour_tab = tk.Frame(calc_tabs)
-quick_play_tab = tk.Frame(calc_tabs)
-world_tour_tab.pack(fill='both', expand=True)
-quick_play_tab.pack(fill='both', expand=True)
-
-calc_tabs.add (world_tour_tab, text='World Tour')
-calc_tabs.add (quick_play_tab, text='Quick Play')
-
-calc_tabs.pack(expand=True, fill='both')
-
-def on_tab_changed(event):
-    notebook = event.widget
-    selected_tab = notebook.select()
-    tab_index = notebook.index(selected_tab)
-    if tab_index == 0:
-        setup_world_tour_ui()
-    elif tab_index == 1:
-        setup_quick_play_ui()
-        
-calc_tabs.bind("<<NotebookTabChanged>>", on_tab_changed)
-
+# World Tour 
 
 # Estimated time each game will take
 # Additional game time includes things like queue time, loading time, and transition time between matches
@@ -145,6 +117,168 @@ round_weights_vars = [round_one_weight, round_two_weight, lose_final_round_weigh
 
 for i, var in enumerate(round_weights_vars):
     var.trace_add("write", lambda *args, idx=i: validate_weight(idx))
+    
+# Quick Play
+
+# The different badges the user can choose from to be their goal
+quick_play_badge_options = [
+    ("Bronze 4", 50),
+    ("Bronze 3", 100),
+    ("Bronze 2", 150),
+    ("Bronze 1", 200),
+    ("Silver 4", 300),
+    ("Silver 3", 400),
+    ("Silver 2", 500),
+    ("Silver 1", 600),
+    ("Gold 4", 775),
+    ("Gold 3", 950),
+    ("Gold 2", 1125),
+    ("Gold 1", 1300),
+]
+
+# Awarded point values
+# Quick cash
+first_place_quick_cash = 10
+second_place_quick_cash = 6
+third_place_quick_cash = 5
+
+# Team vs Team game modes (TDM, Power Shift, Head 2 Head)
+win_tvt = 10
+lose_tvt = 5
+
+tab_data = {
+    "World Tour Tab": {
+        "name": "World Tour",
+        "dropdown_options": world_tour_badge_options,
+        "selected_option": world_tour_badge_options[-1]
+    },
+    "Quick Play Tab": {
+        "name": "Quick Play",
+        "dropdown_options": quick_play_badge_options,
+        "selected_option": quick_play_badge_options[-1]
+    }
+}
+
+def on_tab_changed(event):
+    notebook = event.widget
+    selected_tab = notebook.select()
+    tab_index = notebook.index(selected_tab)
+    if tab_index == 0:
+        setup_world_tour_ui()
+    elif tab_index == 1:
+        setup_quick_play_ui()
+       
+       
+# When a badge is selected, update the goal points and its display 
+def on_badge_selected(var_name, index, mode):
+    label, points = badge_dict[badge_var.get()]
+    global goal_points
+    goal_points = points
+    goal_label.config(text=f"Goal: {goal_points} ({label})")
+
+    
+def setup_ui():
+    # Create calculator tabs
+    calc_tabs = ttk.Notebook(root)
+    calc_tabs.pack(expand=True, fill='both')
+    
+    world_tour_tab = tk.Frame(calc_tabs)
+    quick_play_tab = tk.Frame(calc_tabs)
+    world_tour_tab.pack(fill='both', expand=True)
+    quick_play_tab.pack(fill='both', expand=True)
+
+    calc_tabs.add (world_tour_tab, text='World Tour')
+    calc_tabs.add (quick_play_tab, text='Quick Play')
+    
+    calc_tabs.bind("<<NotebookTabChanged>>", on_tab_changed)
+    
+    # Setup the goal points label
+    goal_label = tk.Label(world_tour_tab, text=f"Select your goal", font=("Gadugi", 11))
+    goal_label.pack(pady=(10, 8))
+
+    # Create the dropdown list of badge options
+    badge_dict = {f"{label}: {points}": (label, points) for label, points in world_tour_badge_options}
+    dropdown_options = list(badge_dict.keys())
+
+    badge_var = tk.StringVar()
+    badge_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
+
+    badge_menu = tk.OptionMenu(world_tour_tab, badge_var, *dropdown_options)
+    badge_menu.config(font=("Gadugi", 11))
+    badge_menu.pack(pady=(0, 30))
+
+    # Whenever badge_var is changed, on_badge_selected will run
+    badge_var.trace_add("write", on_badge_selected)
+    on_badge_selected("name", 1, 1)
+
+    # Create the points entry box and label for it
+    points_entry_frame = tk.Frame(world_tour_tab)
+    points_entry_frame.pack(padx=5, pady=(5, 25))
+
+    points_entry_label = tk.Label(points_entry_frame, text="Enter current points:", font=("Gadugi", 12))
+    points_entry_label.grid(row=0, column=1, padx=5)
+
+    points_entry = ttk.Entry(points_entry_frame, font=("Gadugi", 10))
+    points_entry.grid(row=0, column=2, padx=5)
+    #points_entry.insert(0, 0)
+
+    # Create the labels and entry boxes for round weights
+    tk.Label(world_tour_tab, text="Percent chance of getting each round type (total 100%):", font=("Gadugi", 12)).pack(pady=15)
+
+    weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
+
+    # Container frame to hold the two rows
+    round_weights_frame = tk.Frame(world_tour_tab)
+    round_weights_frame.pack()
+
+    # Create two row frames packed vertically
+    row_frames = []
+    for row_index in range(2):
+        row_frame = tk.Frame(round_weights_frame)
+        row_frame.pack(fill='x')
+        row_frames.append(row_frame)
+
+    # Loop through each label/entry pair and put them in the appropriate row frame
+    for i in range(4):
+        cell_frame = tk.Frame(row_frames[i // 2])
+        cell_frame.pack(side='left', padx=10, pady=5)
+
+        tk.Label(cell_frame, text=weight_entry_labels[i], font=("Gadugi", 11)).pack()
+        tk.Entry(cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
+
+    # Calculate button that will perform the calculations and output data when clicked
+    calc_button = ttk.Button(world_tour_tab, text="Calculate", command=calculate, cursor="question_arrow")
+    calc_button.pack(pady=(20, 0))
+
+    # Label that will be updated with calculated data
+    result_frame = ttk.Frame(root)
+    result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
+
+    result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
+    result_label.pack(pady=15, padx=15)
+
+    # Create the games table that will display the type of round,
+    # the number to play to reach the goal points, and the amount of time it will take
+    columns = ("round_type", "number_of_rounds", "playtime")
+    tree = ttk.Treeview(root, columns=columns, show="headings")
+
+    tree.heading("round_type", text="Round Type")
+    tree.heading("number_of_rounds", text="Number of Rounds")
+    tree.heading("playtime", text="Playtime")
+
+    tree.column("round_type", width=145, anchor=tk.W)
+    tree.column("number_of_rounds", width=145, anchor=tk.CENTER)
+    tree.column("playtime", width=200, anchor=tk.CENTER)
+
+    tree.insert("", "end", values=(row_labels[0], round_one_games, convert_time(round_one_time)))
+    tree.insert("", "end", values=(row_labels[1], round_two_games, convert_time(round_two_time)))
+    tree.insert("", "end", values=(row_labels[2], lose_final_round_games, convert_time(lose_final_round_time)))
+    tree.insert("", "end", values=(row_labels[3], win_final_round_games, convert_time(win_final_round_time)))
+
+    tree.pack(padx = 50, pady = (40, 50), fill=tk.NONE)
+    
+setup_ui()
+
 
 # Perform a division operation and round up the result
 def division_round_up(dividend, divisor):
@@ -177,12 +311,7 @@ def refresh_games_table():
         tree.insert("", "end", values=row)
 
     
-# When a badge is selected, update the goal points and its display 
-def on_badge_selected(var_name, index, mode):
-    label, points = badge_dict[badge_var.get()]
-    global goal_points
-    goal_points = points
-    goal_label.config(text=f"Goal: {goal_points} ({label})")
+
 
 
 # Validate the inputted weight from the user to make sure it doesn't exceed the combined max of 100
@@ -258,126 +387,7 @@ def calculate():
         result_label.config(text="Please enter a valid points value.")
 
 
-# Set style for various UI elements
-style = ttk.Style(root)
-style.theme_use("clam")
-style.configure("Treeview", font=("Gadugi", 10))
-style.configure("Treeview.Heading", font=("Gadugi", 11))
-style.configure("TButton", font=("Gadugi", 10))
 
-# Setup the goal points label
-goal_label = tk.Label(world_tour_tab, text=f"Select your goal", font=("Gadugi", 11))
-goal_label.pack(pady=(10, 8))
-
-# Create the dropdown list of badge options
-badge_dict = {f"{label}: {points}": (label, points) for label, points in world_tour_badge_options}
-dropdown_options = list(badge_dict.keys())
-
-badge_var = tk.StringVar()
-badge_var.set(dropdown_options[-1])  # Default to Emerald 1: 2400
-
-badge_menu = tk.OptionMenu(world_tour_tab, badge_var, *dropdown_options)
-badge_menu.config(font=("Gadugi", 11))
-badge_menu.pack(pady=(0, 30))
-
-# Whenever badge_var is changed, on_badge_selected will run
-badge_var.trace_add("write", on_badge_selected)
-on_badge_selected("name", 1, 1)
-
-# Create the points entry box and label for it
-points_entry_frame = tk.Frame(world_tour_tab)
-points_entry_frame.pack(padx=5, pady=(5, 25))
-
-points_entry_label = tk.Label(points_entry_frame, text="Enter current points:", font=("Gadugi", 12))
-points_entry_label.grid(row=0, column=1, padx=5)
-
-points_entry = ttk.Entry(points_entry_frame, font=("Gadugi", 10))
-points_entry.grid(row=0, column=2, padx=5)
-#points_entry.insert(0, 0)
-
-# Create the labels and entry boxes for round weights
-tk.Label(world_tour_tab, text="Percent chance of getting each round type (total 100%):", font=("Gadugi", 12)).pack(pady=15)
-
-weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
-
-# Container frame to hold the two rows
-round_weights_frame = tk.Frame(world_tour_tab)
-round_weights_frame.pack()
-
-# Create two row frames packed vertically
-row_frames = []
-for row_index in range(2):
-    row_frame = tk.Frame(round_weights_frame)
-    row_frame.pack(fill='x')
-    row_frames.append(row_frame)
-
-# Loop through each label/entry pair and put them in the appropriate row frame
-for i in range(4):
-    cell_frame = tk.Frame(row_frames[i // 2])
-    cell_frame.pack(side='left', padx=10, pady=5)
-
-    tk.Label(cell_frame, text=weight_entry_labels[i], font=("Gadugi", 11)).pack()
-    tk.Entry(cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
-
-# Calculate button that will perform the calculations and output data when clicked
-calc_button = ttk.Button(world_tour_tab, text="Calculate", command=calculate, cursor="question_arrow")
-calc_button.pack(pady=(20, 0))
-
-# Label that will be updated with calculated data
-result_frame = ttk.Frame(root)
-result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
-
-result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
-result_label.pack(pady=15, padx=15)
-
-# Create the games table that will display the type of round,
-# the number to play to reach the goal points, and the amount of time it will take
-columns = ("round_type", "number_of_rounds", "playtime")
-tree = ttk.Treeview(root, columns=columns, show="headings")
-
-tree.heading("round_type", text="Round Type")
-tree.heading("number_of_rounds", text="Number of Rounds")
-tree.heading("playtime", text="Playtime")
-
-tree.column("round_type", width=145, anchor=tk.W)
-tree.column("number_of_rounds", width=145, anchor=tk.CENTER)
-tree.column("playtime", width=200, anchor=tk.CENTER)
-
-tree.insert("", "end", values=(row_labels[0], round_one_games, convert_time(round_one_time)))
-tree.insert("", "end", values=(row_labels[1], round_two_games, convert_time(round_two_time)))
-tree.insert("", "end", values=(row_labels[2], lose_final_round_games, convert_time(lose_final_round_time)))
-tree.insert("", "end", values=(row_labels[3], win_final_round_games, convert_time(win_final_round_time)))
-
-tree.pack(padx = 50, pady = (40, 50), fill=tk.NONE)
-
-
-# Quick Play
-
-# The different badges the user can choose from to be their goal
-quick_play_badge_options = [
-    ("Bronze 4", 50),
-    ("Bronze 3", 100),
-    ("Bronze 2", 150),
-    ("Bronze 1", 200),
-    ("Silver 4", 300),
-    ("Silver 3", 400),
-    ("Silver 2", 500),
-    ("Silver 1", 600),
-    ("Gold 4", 775),
-    ("Gold 3", 950),
-    ("Gold 2", 1125),
-    ("Gold 1", 1300),
-]
-
-# Awarded point values
-# Quick cash
-first_place_quick_cash = 10
-second_place_quick_cash = 6
-third_place_quick_cash = 5
-
-# Team vs Team game modes (TDM, Power Shift, Head 2 Head)
-win_tvt = 10
-lose_tvt = 5
 
 # When a badge is selected, update the goal points and its display 
 def qp_on_badge_selected(var_name, index, mode):
