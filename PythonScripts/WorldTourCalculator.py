@@ -164,8 +164,11 @@ def on_tab_changed(event):
     selected_tab = notebook.select()
     tab_index = notebook.index(selected_tab)
     if tab_index == 0:
+        global current_tab
+        current_tab = "World Tour Tab"
         setup_world_tour_ui()
     elif tab_index == 1:
+        current_tab = "Quick Play Tab"
         setup_quick_play_ui()
        
        
@@ -175,6 +178,10 @@ def on_badge_selected(var_name, index, mode):
     global goal_points
     goal_points = points
     goal_label.config(text=f"Goal: {goal_points} ({label})")
+    
+    # Save selected badge
+    data = tab_data[current_tab]
+    data["selected_option"] = badge_var.get()
 
 
 # Perform a division operation and round up the result
@@ -334,7 +341,7 @@ def qp_calculate():
 
 
 def setup_quick_play_ui():
-    data = tab_data["Quick Play Tab"]
+    data = tab_data[current_tab]
     selected_option = badge_var.get()
     entered_points = points_entry.get()
     
@@ -342,8 +349,9 @@ def setup_quick_play_ui():
     
     print("Setup quick play")
     
+    
 def setup_world_tour_ui():
-    data = tab_data["World Tour Tab"]
+    data = tab_data[current_tab]
     selected_option = badge_var.get()
     entered_points = points_entry.get()
     
