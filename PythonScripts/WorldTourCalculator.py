@@ -292,8 +292,8 @@ def calculate():
 def qp_calculate():
     try:
         # The amount of points left to reach the goal points
-        current_points = int(qp_points_entry.get())
-        points_remaining = qp_goal_points - current_points
+        current_points = int(points_entry.get())
+        points_remaining = goal_points - current_points
         display = f"\n Points remaining: {points_remaining}\n"
         
         # Number of games required for each amount of rewared points to reach the goal points
@@ -312,6 +312,7 @@ def qp_calculate():
         updated_games_data[0] = (win_games, convert_time(win_playtime))
         updated_games_data[1] = (lose_games, convert_time(lose_playtime))
         updated_games_data[2] = (second_place_qc_games, convert_time(second_place_qc_playtime))
+        updated_games_data[3] = (0, 0)
         for i, (games, time) in enumerate(updated_games_data):
             games_table_rows[i][1] = games
             games_table_rows[i][2] = time
@@ -344,6 +345,7 @@ def setup_quick_play_ui():
     data = tab_data[current_tab]
     selected_option = badge_var.get()
     entered_points = points_entry.get()
+    calc_button.config(command=qp_calculate)
     
     load_tab_data("Quick Play Tab")
     
@@ -354,6 +356,7 @@ def setup_world_tour_ui():
     data = tab_data[current_tab]
     selected_option = badge_var.get()
     entered_points = points_entry.get()
+    calc_button.config(command=calculate)
     
     load_tab_data("World Tour Tab")
     
@@ -445,6 +448,7 @@ def setup_ui():
         tk.Entry(cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
 
     # Calculate button that will perform the calculations and output data when clicked
+    global calc_button
     calc_button = ttk.Button(root, text="Calculate", command=calculate, cursor="question_arrow")
     calc_button.pack(pady=(20, 0))
 
