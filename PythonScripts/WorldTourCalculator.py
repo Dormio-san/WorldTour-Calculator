@@ -452,11 +452,13 @@ def setup_ui():
     result_frame = ttk.Frame(root)
     result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
 
+    global result_label
     result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
     result_label.pack(pady=15, padx=15)
 
     # Create the games table that will display the type of round,
     # the number to play to reach the goal points, and the amount of time it will take
+    global tree
     columns = ("round_type", "number_of_rounds", "playtime")
     tree = ttk.Treeview(root, columns=columns, show="headings")
 
