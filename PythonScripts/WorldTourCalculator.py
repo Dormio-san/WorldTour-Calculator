@@ -52,7 +52,7 @@ lose_final_round_time = game_time * 3
 win_final_round_time = game_time * 3
 
 # Dates used to determine how much time is left in the season
-season_end_date = date(2025, 12, 11)
+season_end_date = date(2025, 12, 10)
 todays_date = date.today()
 
 # The different badges the user can choose from to be their goal
