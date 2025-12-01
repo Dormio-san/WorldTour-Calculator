@@ -23,6 +23,7 @@ style.theme_use("clam")
 style.configure("Treeview", font=("Gadugi", 10))
 style.configure("Treeview.Heading", font=("Gadugi", 11))
 style.configure("TButton", font=("Gadugi", 10))
+#style.configure("TOptionMenu", font=("Gadugi", 11))
 
 # World Tour 
 
@@ -82,7 +83,7 @@ world_tour_badge_options = [
     ("Emerald 1", 2400),
 ]
 
-# Labels for rows in the games table
+# Labels for rows in the world tour games table
 row_labels = [
     "Round one",
     "Round two",
@@ -90,7 +91,7 @@ row_labels = [
     "Win final round",
 ]
 
-# Full table rows in the games table
+# Full table rows in the world tour games table
 games_table_rows = [
     [row_labels[0], round_one_games, round_one_time],
     [row_labels[1], round_two_games, round_two_time],
@@ -105,6 +106,38 @@ updated_games_data = [
     (round_two_games, round_two_time),
     (lose_final_round_games, lose_final_round_time),
     (win_final_round_games, win_final_round_time),
+]
+
+# Quick play games table data
+# Base quick cash variables for wins and playtime
+win_games = 1
+lose_games = 1
+second_place_qc_games = 1
+
+win_playtime = game_time
+lose_playtime = game_time
+second_place_qc_playtime = game_time
+
+# Labels for rows in the quick play games table
+qp_row_labels = [
+    "Win",
+    "Lose",
+    "Second Place",
+]
+
+# Full table rows in the quick play games table
+qp_games_table_rows = [
+    [qp_row_labels[0], win_games, win_playtime],
+    [qp_row_labels[1], lose_games, lose_playtime],
+    [qp_row_labels[2], second_place_qc_games, second_place_qc_playtime],
+]
+
+# Modified when a calculation occurs
+# Number of games and time will be updated and then used to update the data in the games table rows
+qp_updated_games_data = [
+    (win_games, win_playtime),
+    (lose_games, lose_playtime),
+    (second_place_qc_games, second_place_qc_playtime),
 ]
 
 # Weights for how often a certain type of round will occur
@@ -146,16 +179,22 @@ third_place_quick_cash = 5
 win_tvt = 10
 lose_tvt = 5
 
+base_result_label_text = "\n Enter info and press calculate \n"
+
 tab_data = {
     "World Tour Tab": {
         "name": "World Tour",
         "dropdown_options": world_tour_badge_options,
-        "selected_option": "Emerald 1: 2400"
+        "selected_option": "Emerald 1: 2400",
+        "result_label_text": base_result_label_text,
+        "tree_data": games_table_rows
     },
     "Quick Play Tab": {
         "name": "Quick Play",
         "dropdown_options": quick_play_badge_options,
-        "selected_option": "Gold 1: 1300"
+        "selected_option": "Gold 1: 1300",
+        "result_label_text": base_result_label_text,
+        "tree_data": qp_games_table_rows
     }
 }
 
@@ -206,12 +245,15 @@ def convert_time(bulk_minutes):
  
 # Refresh the games table
 def refresh_games_table():
+    # Reference to the saved table data
+    data = tab_data[current_tab]
+    
     # Clear all existing rows
     for item in tree.get_children():
         tree.delete(item)
 
     # Insert updated rows
-    for row in games_table_rows:
+    for row in data["tree_data"]:
         tree.insert("", "end", values=row)
         
         
@@ -237,6 +279,9 @@ def validate_weight(index, *args):
 # Calculate the different data points that will be shown to the user
 def calculate():
     try:
+        # Reference to the saved data for world tour tab
+        data = tab_data["World Tour Tab"]
+        
         # The amount of points left to reach the goal points
         current_points = int(points_entry.get())
         points_remaining = goal_points - current_points
@@ -284,6 +329,10 @@ def calculate():
         display += f"Weighted daily play time: {convert_time(weighted_playtime / days_remaining)}"
         
         result_label.config(text=display)
+        
+        # Save the result label text
+        data["result_label_text"] = display
+        
     except ValueError:
         result_label.config(text="Please enter a valid points value.")
         
@@ -291,6 +340,9 @@ def calculate():
 # Calculate the different data points that will be shown to the user
 def qp_calculate():
     try:
+        # Reference to the saved data for quiick play tab
+        data = tab_data["Quick Play Tab"]
+        
         # The amount of points left to reach the goal points
         current_points = int(points_entry.get())
         points_remaining = goal_points - current_points
@@ -309,13 +361,12 @@ def qp_calculate():
         second_place_qc_playtime = second_place_qc_games * game_time
         
         # Update the data in the games table and refresh the table to display the updated data
-        updated_games_data[0] = (win_games, convert_time(win_playtime))
-        updated_games_data[1] = (lose_games, convert_time(lose_playtime))
-        updated_games_data[2] = (second_place_qc_games, convert_time(second_place_qc_playtime))
-        updated_games_data[3] = (0, 0)
-        for i, (games, time) in enumerate(updated_games_data):
-            games_table_rows[i][1] = games
-            games_table_rows[i][2] = time
+        qp_updated_games_data[0] = (win_games, convert_time(win_playtime))
+        qp_updated_games_data[1] = (lose_games, convert_time(lose_playtime))
+        qp_updated_games_data[2] = (second_place_qc_games, convert_time(second_place_qc_playtime))
+        for i, (games, time) in enumerate(qp_updated_games_data):
+            qp_games_table_rows[i][1] = games
+            qp_games_table_rows[i][2] = time
         refresh_games_table()
         
         # Calculate playtime based on the chance of each round type occurring
@@ -337,6 +388,10 @@ def qp_calculate():
         #display += f"Weighted daily play time: {convert_time(weighted_playtime / days_remaining)}"
         
         result_label.config(text=display)
+        
+        # Save the result label text
+        data["result_label_text"] = display
+        
     except ValueError:
         result_label.config(text="Please enter a valid points value.")
 
@@ -349,7 +404,7 @@ def setup_quick_play_ui():
     
     load_tab_data("Quick Play Tab")
     
-    print("Setup quick play")
+    #print("Setup quick play")
     
     
 def setup_world_tour_ui():
@@ -360,7 +415,7 @@ def setup_world_tour_ui():
     
     load_tab_data("World Tour Tab")
     
-    print("Setup world tour")
+    #print("Setup world tour")
 
 
 def load_tab_data(tab_name):
@@ -374,6 +429,12 @@ def load_tab_data(tab_name):
     for option in dropdown_options:
         dropdown_menu.add_command(label=option, command=lambda v=option: badge_var.set(v))
     badge_var.set(data["selected_option"])
+    
+    # Load result label text
+    result_label.config(text=data["result_label_text"])
+    
+    # Refresh tree with saved data
+    refresh_games_table()
 
     
 def setup_ui():
@@ -457,7 +518,7 @@ def setup_ui():
     result_frame.pack(padx=10, pady=(30, 0), fill=tk.NONE, expand=True)
 
     global result_label
-    result_label = tk.Label(result_frame, text="\n Enter info and press calculate \n", font=("Gadugi", 12))
+    result_label = tk.Label(result_frame, text=base_result_label_text, font=("Gadugi", 12))
     result_label.pack(pady=15, padx=15)
 
     # Create the games table that will display the type of round,
