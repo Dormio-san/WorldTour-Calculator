@@ -488,11 +488,24 @@ def setup_ui():
     tk.Label(root, text="Percent chance of getting each round type (total 100%):", font=("Gadugi", 12)).pack(pady=15)
 
     weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
+    qp_weight_entry_labels = ["Win", "Lose", "Second Place"]
 
     # Container frame to hold the two rows
     round_weights_frame = tk.Frame(root)
     round_weights_frame.pack()
 
+    # Quick play weights
+    qp_weight_frame = tk.Frame(root)
+    qp_weight_frame.pack()
+    
+    for i in range(3):
+        qp_cell_frame = tk.Frame(qp_weight_frame)
+        qp_cell_frame.pack(side='left', padx=10, pady=5)
+        
+        tk.Label(qp_cell_frame, text=qp_weight_entry_labels[i], font=("Gadugi", 11)).pack()
+        tk.Entry(qp_cell_frame, textvariable=round_weights_vars[i], font=("Gadugi", 10), width=17).pack(padx=15)
+    # end quick play weights
+    
     # Create two row frames packed vertically
     row_frames = []
     for row_index in range(2):
