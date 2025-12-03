@@ -404,6 +404,8 @@ def setup_quick_play_ui():
     selected_option = badge_var.get()
     entered_points = points_entry.get()
     calc_button.config(command=qp_calculate)
+    #round_weights_frame.grid_remove()
+    #qp_weight_frame.grid()
     
     load_tab_data("Quick Play Tab")
     
@@ -415,6 +417,8 @@ def setup_world_tour_ui():
     selected_option = badge_var.get()
     entered_points = points_entry.get()
     calc_button.config(command=calculate)
+    #round_weights_frame.grid()
+    #qp_weight_frame.grid_remove()
     
     load_tab_data("World Tour Tab")
     
@@ -494,10 +498,12 @@ def setup_ui():
     qp_weight_entry_labels = ["Win", "Lose", "Second Place"]
 
     # Container frame to hold the two rows
+    global round_weights_frame
     round_weights_frame = tk.Frame(root)
     round_weights_frame.pack()
 
     # Quick play weights
+    global qp_weight_frame
     qp_weight_frame = tk.Frame(root)
     qp_weight_frame.pack()
     
