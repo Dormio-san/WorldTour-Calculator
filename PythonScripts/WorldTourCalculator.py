@@ -620,9 +620,7 @@ class WorldTourCalculator(tk.Tk):
         self.tree.insert("", "end", values=(self.row_labels[3], self.win_final_round_games, self.convert_time(self.win_final_round_time)))
 
         self.tree.grid(row=9, column=0, columnspan=3, padx=50, pady=(40, 50))
-
-        # Start with World Tour tab layout
-        self.setup_world_tour_ui()
+    
     
 if __name__ == "__main__":
     app = WorldTourCalculator()
