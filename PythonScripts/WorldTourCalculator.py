@@ -43,7 +43,7 @@ class WorldTourCalculator(tk.Tk):
             "TNotebook.Tab",
             #background="gray",  # tab background color
             foreground="black",  # text color
-            padding=[15, 5],   # horizontal, vertical padding
+            padding=[15, 3],   # horizontal, vertical padding
             font=("Gadugi", 11)
         )
 
@@ -53,7 +53,7 @@ class WorldTourCalculator(tk.Tk):
             #background=[("selected", "light gray")],
             foreground=[("selected", "green")],
             font=[("selected", ("Gadugi", 13))],
-            padding=[("selected", [15, 10])]
+            padding=[("selected", [15, 6])]
         )
 
         # --- World Tour Data ---
