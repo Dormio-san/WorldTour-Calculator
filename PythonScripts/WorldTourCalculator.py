@@ -30,6 +30,31 @@ class WorldTourCalculator(tk.Tk):
         style.configure("Treeview", font=("Gadugi", 10))
         style.configure("Treeview.Heading", font=("Gadugi", 11))
         style.configure("TButton", font=("Gadugi", 10))
+        
+        # Styling for notebook
+        style.configure(
+            "TNotebook",
+            #background="gray",   # box around the tabs
+            tabmargins=[0, 0, 0, 0]   # space on the left, up, down, and right
+        )
+
+        # All tabs
+        style.configure(
+            "TNotebook.Tab",
+            #background="gray",  # tab background color
+            foreground="black",  # text color
+            padding=[15, 5],   # horizontal, vertical padding
+            font=("Gadugi", 11)
+        )
+
+        # Selected tab state
+        style.map(
+            "TNotebook.Tab",
+            #background=[("selected", "light gray")],
+            foreground=[("selected", "green")],
+            font=[("selected", ("Gadugi", 13))],
+            padding=[("selected", [15, 10])]
+        )
 
         # --- World Tour Data ---
         # Estimated time each game will take
