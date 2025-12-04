@@ -604,7 +604,7 @@ class WorldTourCalculator(tk.Tk):
 
         # Games table
         columns = ("round_type", "number_of_rounds", "playtime")
-        self.tree = ttk.Treeview(self, columns=columns, show="headings")
+        self.tree = ttk.Treeview(self, columns=columns, show="headings", height=5)
         self.tree.heading("round_type", text="Round Type")
         self.tree.heading("number_of_rounds", text="Number of Rounds")
         self.tree.heading("playtime", text="Playtime")
