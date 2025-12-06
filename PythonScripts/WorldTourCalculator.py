@@ -152,7 +152,7 @@ class WorldTourCalculator(tk.Tk):
         ]
 
         for i, var in enumerate(self.round_weights_vars):
-            var.trace_add("write", lambda *args, idx=i: self.validate_weight(idx))
+            var.trace_add("write", lambda *args, idx=i: self.validate_weight(idx, self.round_weights_vars))
 
         # --- Quick Play Data ---
         # Base quick cash variables for wins and playtime
@@ -210,6 +210,20 @@ class WorldTourCalculator(tk.Tk):
         # Team vs Team game modes (TDM, Power Shift, Head 2 Head)
         self.win_tvt = 10
         self.lose_tvt = 5
+        
+        # Weights for how often certain types of matches in quick play occur
+        self.win_weight = tk.StringVar(value="30")
+        self.lose_weight = tk.StringVar(value="50")
+        self.qc_second_place_weight = tk.StringVar(value="20")
+
+        self.qp_round_weights_vars = [
+            self.win_weight,
+            self.lose_weight,
+            self.qc_second_place_weight,
+        ]
+
+        for i, var in enumerate(self.qp_round_weights_vars):
+            var.trace_add("write", lambda *args, idx=i: self.validate_weight(idx, self.qp_round_weights_vars))
 
         # --- General Data --- 
         self.base_result_label_text = "\n Enter info and press calculate \n"
@@ -314,9 +328,9 @@ class WorldTourCalculator(tk.Tk):
             
             
     # Validate the inputted weight from the user to make sure it doesn't exceed the combined max of 100
-    def validate_weight(self, index, *args):
+    def validate_weight(self, index, weights_vars, *args):
         vals = []
-        for v in self.round_weights_vars:
+        for v in weights_vars:
             try:
                 vals.append(int(v.get()))
             except ValueError:
@@ -329,7 +343,7 @@ class WorldTourCalculator(tk.Tk):
 
         # If value entered is above max, set to the maximum allowed value
         if vals[index] > max_allowed:
-            self.round_weights_vars[index].set(str(max_allowed))
+            weights_vars[index].set(str(max_allowed))
 
 
     # --- Main Calculations ---
@@ -587,7 +601,7 @@ class WorldTourCalculator(tk.Tk):
             tk.Label(self.qp_weight_frame, text=qp_weight_entry_labels[i], font=("Gadugi", 11)).grid(
                 row=0, column=i, padx=10, pady=5
             )
-            tk.Entry(self.qp_weight_frame, textvariable=self.round_weights_vars[i], font=("Gadugi", 10), width=17).grid(
+            tk.Entry(self.qp_weight_frame, textvariable=self.qp_round_weights_vars[i], font=("Gadugi", 10), width=17).grid(
                 row=1, column=i, padx=15, pady=5
             )
 
