@@ -448,13 +448,13 @@ class WorldTourCalculator(tk.Tk):
 
             self.refresh_games_table()
             
-            # Calculate playtime based on the chance of each round type occurring
+            # Calculate playtime based on the chance of each quick play match type occurring
             playtimes = [win_playtime, lose_playtime, second_place_qc_playtime]
-            round_weights = [float(var.get() or 0) for var in self.round_weights_vars[:3]]
+            round_weights = [float(var.get() or 0) for var in self.qp_round_weights_vars]
             weighted_playtime = sum((w / 100) * t for w, t in zip(round_weights, playtimes))
             
             # Estimated amount of play time to reach the goal points based on round weights
-            display += f"Estimated play time: {self.convert_time(lose_playtime)}\n"
+            display += f"Estimated play time: {self.convert_time(weighted_playtime)}\n"
             
             # The amount of points needed per day to reach the goal points
             days_remaining = (self.season_end_date - self.todays_date).days
@@ -464,6 +464,7 @@ class WorldTourCalculator(tk.Tk):
             
             # Maximum and weighted time to play each day to reach the goal points
             display += f"Max daily play time: {self.convert_time(lose_playtime / days_remaining)}"
+            display += f"Weighted daily play time: {self.convert_time(weighted_playtime / days_remaining)}"
             
             # Set and save the result label text
             self.result_label.config(text=display)
