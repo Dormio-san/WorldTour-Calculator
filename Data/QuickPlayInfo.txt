@@ -30,3 +30,9 @@ Gold 4: 775
 Gold 3: 950
 Gold 2: 1125
 Gold 1: 1300
+
+
+Blast off
+Game Time: 6 minutes
+Win: 8 points
+Lose: 4 points
