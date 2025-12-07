@@ -9,6 +9,7 @@
 # Additionally, special event game modes can give the player different amounts of points.
 
 # To build the calculator, run "pyinstaller --onefile --windowed WorldTourCalculator.py"
+# If pyinstaller is not a recognized command, ensure you install it by running "pip install pyinstaller"
 
 
 import tkinter as tk
