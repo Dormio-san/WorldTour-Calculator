@@ -156,6 +156,9 @@ class WorldTourCalculator(tk.Tk):
             var.trace_add("write", lambda *args, idx=i: self.validate_weight(idx, self.round_weights_vars))
 
         # --- Quick Play Data ---
+        # Quick play time
+        self.qp_additional_time = 2
+        
         # Base quick cash variables for wins and playtime
         self.win_games = 1
         self.lose_games = 1
@@ -170,6 +173,8 @@ class WorldTourCalculator(tk.Tk):
             "Win",
             "Lose",
             "Second Place",
+            "Win Blast Off",
+            "Lose Blast Off",
         ]
 
         # Full table rows in the quick play games table
@@ -177,6 +182,8 @@ class WorldTourCalculator(tk.Tk):
             [self.qp_row_labels[0], self.win_games, self.win_playtime],
             [self.qp_row_labels[1], self.lose_games, self.lose_playtime],
             [self.qp_row_labels[2], self.second_place_qc_games, self.second_place_qc_playtime],
+            [self.qp_row_labels[3], 1, 1],
+            [self.qp_row_labels[4], 1, 1],
         ]
 
         # Modified when a calculation occurs
@@ -185,6 +192,8 @@ class WorldTourCalculator(tk.Tk):
             (self.win_games, self.win_playtime),
             (self.lose_games, self.lose_playtime),
             (self.second_place_qc_games, self.second_place_qc_playtime),
+            (1, 1),
+            (1, 1),
         ]
 
         # The different badges the user can choose from to be their goal
@@ -211,6 +220,11 @@ class WorldTourCalculator(tk.Tk):
         # Team vs Team game modes (TDM, Power Shift, Head 2 Head)
         self.win_tvt = 10
         self.lose_tvt = 5
+        
+        # Match time and awarded point values for special mode blast off
+        self.blast_off_time = 6 + self.qp_additional_time
+        self.blast_off_win = 8
+        self.blast_off_lose = 4
         
         # Weights for how often certain types of matches in quick play occur
         self.win_weight = tk.StringVar(value="30")
@@ -361,22 +375,22 @@ class WorldTourCalculator(tk.Tk):
             
             # Number of games required in each round to reach the goal points
             # Includes losing first round, losing second round, losing final round, and winning final round
-            round_one_games = self.division_round_up(points_remaining, self.lose_round_one_points)
-            round_two_games = self.division_round_up(points_remaining, self.lose_round_two_points)
-            lose_final_round_games = self.division_round_up(points_remaining, self.lose_final_round_points)
-            win_final_round_games = self.division_round_up(points_remaining, self.win_final_round_points)
+            self.round_one_games = self.division_round_up(points_remaining, self.lose_round_one_points)
+            self.round_two_games = self.division_round_up(points_remaining, self.lose_round_two_points)
+            self.lose_final_round_games = self.division_round_up(points_remaining, self.lose_final_round_points)
+            self.win_final_round_games = self.division_round_up(points_remaining, self.win_final_round_points)
             
             # Playtime to reach goal points if only round type specified is played
-            round_one_playtime = round_one_games * self.round_one_time
-            round_two_playtime = round_two_games * self.round_two_time
-            lose_final_round_playtime = lose_final_round_games * self.lose_final_round_time
-            win_final_round_playtime = win_final_round_games * self.win_final_round_time
+            round_one_playtime = self.round_one_games * self.round_one_time
+            round_two_playtime = self.round_two_games * self.round_two_time
+            lose_final_round_playtime = self.lose_final_round_games * self.lose_final_round_time
+            win_final_round_playtime = self.win_final_round_games * self.win_final_round_time
             
             # Update the data in the games table and refresh the table to display the updated data
-            self.updated_games_data[0] = (round_one_games, self.convert_time(round_one_playtime))
-            self.updated_games_data[1] = (round_two_games, self.convert_time(round_two_playtime))
-            self.updated_games_data[2] = (lose_final_round_games, self.convert_time(lose_final_round_playtime))
-            self.updated_games_data[3] = (win_final_round_games, self.convert_time(win_final_round_playtime))
+            self.updated_games_data[0] = (self.round_one_games, self.convert_time(round_one_playtime))
+            self.updated_games_data[1] = (self.round_two_games, self.convert_time(round_two_playtime))
+            self.updated_games_data[2] = (self.lose_final_round_games, self.convert_time(lose_final_round_playtime))
+            self.updated_games_data[3] = (self.win_final_round_games, self.convert_time(win_final_round_playtime))
 
             for i, (games, time_str) in enumerate(self.updated_games_data):
                 self.games_table_rows[i][1] = games
@@ -432,17 +446,22 @@ class WorldTourCalculator(tk.Tk):
             win_games = self.division_round_up(points_remaining, self.win_tvt)
             lose_games = self.division_round_up(points_remaining, self.lose_tvt)
             second_place_qc_games = self.division_round_up(points_remaining, self.second_place_quick_cash)
+            blast_off_win_games = self.division_round_up(points_remaining, self.blast_off_win)
+            blast_off_lose_games = self.division_round_up(points_remaining, self.blast_off_lose)
             
             # Playtime to reach goal points if only type specified is played
             win_playtime = win_games * self.game_time
             lose_playtime = lose_games * self.game_time
             second_place_qc_playtime = second_place_qc_games * self.game_time
+            blast_off_win_time = blast_off_win_games * self.blast_off_time
+            blast_off_lose_time = blast_off_lose_games * self.blast_off_time
             
             # Update the data in the games table and refresh the table to display the updated data
             self.qp_updated_games_data[0] = (win_games, self.convert_time(win_playtime))
             self.qp_updated_games_data[1] = (lose_games, self.convert_time(lose_playtime))
             self.qp_updated_games_data[2] = (second_place_qc_games, self.convert_time(second_place_qc_playtime))
-
+            self.qp_updated_games_data[3] = (blast_off_win_games, self.convert_time(blast_off_win_time))
+            self.qp_updated_games_data[4] = (blast_off_lose_games, self.convert_time(blast_off_lose_time))            
             for i, (games, time_str) in enumerate(self.qp_updated_games_data):
                 self.qp_games_table_rows[i][1] = games
                 self.qp_games_table_rows[i][2] = time_str
