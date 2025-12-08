@@ -163,10 +163,24 @@ class WorldTourCalculator(tk.Tk):
         self.win_games = 1
         self.lose_games = 1
         self.second_place_qc_games = 1
+        
+        # Quick Cash awarded point values
+        self.first_place_quick_cash = 10
+        self.second_place_quick_cash = 6
+        self.third_place_quick_cash = 5
 
-        self.win_playtime = self.game_time
-        self.lose_playtime = self.game_time
-        self.second_place_qc_playtime = self.game_time
+        # Team vs Team game modes (TDM, Power Shift, Head 2 Head)
+        self.win_tvt = 10
+        self.lose_tvt = 5
+        
+        # Match time and awarded point values for special mode blast off
+        self.blast_off_time = 6 + self.qp_additional_time
+        self.blast_off_win = 8
+        self.blast_off_lose = 4
+
+        self.win_playtime = self.base_game_time + self.qp_additional_time
+        self.lose_playtime = self.base_game_time + self.qp_additional_time
+        self.second_place_qc_playtime = self.base_game_time + self.qp_additional_time
 
         # Labels for rows in the quick play games table
         self.qp_row_labels = [
@@ -182,8 +196,8 @@ class WorldTourCalculator(tk.Tk):
             [self.qp_row_labels[0], self.win_games, self.win_playtime],
             [self.qp_row_labels[1], self.lose_games, self.lose_playtime],
             [self.qp_row_labels[2], self.second_place_qc_games, self.second_place_qc_playtime],
-            [self.qp_row_labels[3], 1, 1],
-            [self.qp_row_labels[4], 1, 1],
+            [self.qp_row_labels[3], 1, self.blast_off_time],
+            [self.qp_row_labels[4], 1, self.blast_off_time],
         ]
 
         # Modified when a calculation occurs
@@ -192,8 +206,8 @@ class WorldTourCalculator(tk.Tk):
             (self.win_games, self.win_playtime),
             (self.lose_games, self.lose_playtime),
             (self.second_place_qc_games, self.second_place_qc_playtime),
-            (1, 1),
-            (1, 1),
+            (1, self.blast_off_time),
+            (1, self.blast_off_time),
         ]
 
         # The different badges the user can choose from to be their goal
@@ -211,20 +225,6 @@ class WorldTourCalculator(tk.Tk):
             ("Gold 2", 1125),
             ("Gold 1", 1300),
         ]
-
-        # Quick Cash awarded point values
-        self.first_place_quick_cash = 10
-        self.second_place_quick_cash = 6
-        self.third_place_quick_cash = 5
-
-        # Team vs Team game modes (TDM, Power Shift, Head 2 Head)
-        self.win_tvt = 10
-        self.lose_tvt = 5
-        
-        # Match time and awarded point values for special mode blast off
-        self.blast_off_time = 6 + self.qp_additional_time
-        self.blast_off_win = 8
-        self.blast_off_lose = 4
         
         # Weights for how often certain types of matches in quick play occur
         self.win_weight = tk.StringVar(value="30")
@@ -639,7 +639,7 @@ class WorldTourCalculator(tk.Tk):
 
         # Games table
         columns = ("round_type", "number_of_rounds", "playtime")
-        self.tree = ttk.Treeview(self, columns=columns, show="headings", height=5)
+        self.tree = ttk.Treeview(self, columns=columns, show="headings", height=6)
         self.tree.heading("round_type", text="Round Type")
         self.tree.heading("number_of_rounds", text="Number of Rounds")
         self.tree.heading("playtime", text="Playtime")
