@@ -83,7 +83,7 @@ class WorldTourCalculator(tk.Tk):
         self.win_final_round_time = self.game_time * 3
 
         # Dates used to determine how much time is left in the season
-        self.season_end_date = date(2025, 12, 10)
+        self.season_end_date = date(2026, 3, 19)
         self.todays_date = date.today()
 
         # The different badges in world tour
