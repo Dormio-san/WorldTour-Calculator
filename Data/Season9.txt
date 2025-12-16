@@ -1,4 +1,7 @@
 --- Quick Play Awarded Points ---
+1st: 4
+2nd: 3
+3rd: 2
 
 -- Head 2 Head -- 
 Win: 4 points
@@ -7,6 +10,19 @@ Lose: 2 points
 -- TDM --
 Win:
 Lose: 2 points
+
+-- Power Shift --
+Win: 4 points
+Lose: 2 points 
+
+-- Point Break --
+Win: 4 points
+Lose:  points
+
+-- Quick Cash --
+1st:
+2nd: 
+3rd: 
 
 
 

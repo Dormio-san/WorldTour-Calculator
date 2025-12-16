@@ -69,12 +69,20 @@ class WorldTourCalculator(tk.Tk):
         self.lose_round_two_points = 6
         self.lose_final_round_points = 14
         self.win_final_round_points = 25
+        
+        # World tour points awarded for the quickplay modes
+        self.win_qp_points = 4
+        self.second_place_qp_points = 3
+        self.lose_qp_points = 2
 
         # Number of games needed to reach the goal points (default is 1)
         self.round_one_games = 1
         self.round_two_games = 1
         self.lose_final_round_games = 1
         self.win_final_round_games = 1
+        self.win_qp_games = 1
+        self.second_place_qp_games = 1
+        self.lose_qp_games = 1
 
         # Time spent playing for each type of round
         self.round_one_time = self.game_time
@@ -120,6 +128,9 @@ class WorldTourCalculator(tk.Tk):
             "Round two",
             "Lose final round",
             "Win final round",
+            "Win Quick Play",
+            "Second Place Quick Play",
+            "Lose Quick Play"
         ]
 
         # Full table rows in the world tour games table
@@ -128,6 +139,9 @@ class WorldTourCalculator(tk.Tk):
             [self.row_labels[1], self.round_two_games, self.round_two_time],
             [self.row_labels[2], self.lose_final_round_games, self.lose_final_round_time],
             [self.row_labels[3], self.win_final_round_games, self.win_final_round_time],
+            [self.row_labels[4], self.win_qp_games, self.game_time],
+            [self.row_labels[5], self.second_place_qp_games, self.game_time],
+            [self.row_labels[6], self.lose_qp_games, self.game_time],
         ]
 
         # Modified when a calculation occurs
@@ -137,6 +151,9 @@ class WorldTourCalculator(tk.Tk):
             (self.round_two_games, self.round_two_time),
             (self.lose_final_round_games, self.lose_final_round_time),
             (self.win_final_round_games, self.win_final_round_time),
+            (self.win_qp_games, self.game_time),
+            (self.second_place_qp_games, self.game_time),
+            (self.lose_qp_games, self.game_time)
         ]
         
         # Weights for how often a certain type of round will occur
@@ -379,18 +396,27 @@ class WorldTourCalculator(tk.Tk):
             self.round_two_games = self.division_round_up(points_remaining, self.lose_round_two_points)
             self.lose_final_round_games = self.division_round_up(points_remaining, self.lose_final_round_points)
             self.win_final_round_games = self.division_round_up(points_remaining, self.win_final_round_points)
+            self.win_qp_games = self.division_round_up(points_remaining, self.win_qp_points)
+            self.second_place_qp_games= self.division_round_up(points_remaining, self.second_place_qp_points)
+            self.lose_qp_games = self.division_round_up(points_remaining, self.lose_qp_points)
             
             # Playtime to reach goal points if only round type specified is played
             round_one_playtime = self.round_one_games * self.round_one_time
             round_two_playtime = self.round_two_games * self.round_two_time
             lose_final_round_playtime = self.lose_final_round_games * self.lose_final_round_time
             win_final_round_playtime = self.win_final_round_games * self.win_final_round_time
+            win_qp_playtime = self.win_qp_games * self.game_time
+            second_place_qp_playtime = self.second_place_qp_games * self.game_time
+            lose_qp_playtime = self.lose_qp_games * self.game_time
             
             # Update the data in the games table and refresh the table to display the updated data
             self.updated_games_data[0] = (self.round_one_games, self.convert_time(round_one_playtime))
             self.updated_games_data[1] = (self.round_two_games, self.convert_time(round_two_playtime))
             self.updated_games_data[2] = (self.lose_final_round_games, self.convert_time(lose_final_round_playtime))
             self.updated_games_data[3] = (self.win_final_round_games, self.convert_time(win_final_round_playtime))
+            self.updated_games_data[4] = (self.win_qp_games, self.convert_time(win_qp_playtime))
+            self.updated_games_data[5] = (self.second_place_qp_games, self.convert_time(second_place_qp_playtime))
+            self.updated_games_data[6] = (self.lose_qp_games, self.convert_time(lose_qp_playtime))
 
             for i, (games, time_str) in enumerate(self.updated_games_data):
                 self.games_table_rows[i][1] = games
@@ -639,12 +665,12 @@ class WorldTourCalculator(tk.Tk):
 
         # Games table
         columns = ("round_type", "number_of_rounds", "playtime")
-        self.tree = ttk.Treeview(self, columns=columns, show="headings", height=6)
+        self.tree = ttk.Treeview(self, columns=columns, show="headings", height=8)
         self.tree.heading("round_type", text="Round Type")
         self.tree.heading("number_of_rounds", text="Number of Rounds")
         self.tree.heading("playtime", text="Playtime")
 
-        self.tree.column("round_type", width=145, anchor=tk.W)
+        self.tree.column("round_type", width=165, anchor=tk.W)
         self.tree.column("number_of_rounds", width=145, anchor=tk.CENTER)
         self.tree.column("playtime", width=200, anchor=tk.CENTER)
 
