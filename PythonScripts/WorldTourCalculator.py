@@ -162,8 +162,8 @@ class WorldTourCalculator(tk.Tk):
         self.lose_final_round_weight = tk.StringVar(value="10")
         self.win_final_round_weight = tk.StringVar(value="5")
         self.win_qp_weight = tk.StringVar(value="10")
-        self.second_place_qp_weight = tk.StringVar(value="10")
-        self.lose_qp_weight = tk.StringVar(value="10")
+        self.second_place_qp_weight = tk.StringVar(value="5")
+        self.lose_qp_weight = tk.StringVar(value="15")
 
         self.round_weights_vars = [
             self.round_one_weight,
@@ -623,32 +623,60 @@ class WorldTourCalculator(tk.Tk):
         self.points_entry = ttk.Entry(points_entry_frame, font=("Gadugi", 10))
         self.points_entry.grid(row=0, column=1, padx=5)
 
-        # Round weights label
-        tk.Label(
-            self,
-            text="Percent chance of getting each round type (total 100%):",
-            font=("Gadugi", 12),
-        ).grid(row=4, column=0, columnspan=3, pady=15)
-
         # World tour weights frame
         self.round_weights_frame = tk.Frame(self)
-        self.round_weights_frame.grid(row=5, column=0, columnspan=3)
+        self.round_weights_frame.grid(row=4, column=0, columnspan=4)
+        
+        # Round weights label
+        tk.Label(
+            self.round_weights_frame,
+            text="Percent chance of getting each round/game type (total 100%):",
+            font=("Gadugi", 13),
+        ).grid(row=0, column=0, columnspan=4, pady=(20, 10))
 
-        weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round", "Win", "Second Place", "Lose"]
+        tk.Label(
+            self.round_weights_frame,
+            text="World Tour",
+            font=("Gadugi", 12),
+        ).grid(row=1, column=0, columnspan=4, pady=(15, 5))
+        
+        wt_weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
 
         # World Tour weight entries
-        for i in range(4):
-            r, c = divmod(i, 2)
-            tk.Label(self.round_weights_frame, text=weight_entry_labels[i], font=("Gadugi", 11)).grid(
-                row=r * 2, column=c, padx=10, pady=5
+        for i in range(len(wt_weight_entry_labels)):
+            #r, c = divmod(i, 4)
+            tk.Label(self.round_weights_frame, text=wt_weight_entry_labels[i], font=("Gadugi", 11)).grid(
+                row=2, column=i, padx=10, pady=5
             )
             tk.Entry(self.round_weights_frame, textvariable=self.round_weights_vars[i], font=("Gadugi", 10), width=17).grid(
-                row=r * 2 + 1, column=c, padx=15, pady=5
+                row=3, column=i, padx=15, pady=(5, 15)
+            )
+        
+        # World tour weights frame
+        self.qp_round_weights_frame = tk.Frame(self.round_weights_frame)
+        self.qp_round_weights_frame.grid(row=4, column=0, columnspan=4)
+        
+        tk.Label(
+            self.qp_round_weights_frame,
+            text="Quick Play",
+            font=("Gadugi", 12),
+        ).grid(row=0, column=0, columnspan=4, pady=(15, 5))
+        
+        qp_weight_entry_labels = ["Win", "Second Place", "Lose"]
+        
+        # Quick Play weight entries
+        for i in range(len(qp_weight_entry_labels)):
+            #r, c = divmod(i, 3)
+            tk.Label(self.qp_round_weights_frame, text=qp_weight_entry_labels[i], font=("Gadugi", 11)).grid(
+                row=1, column=i, padx=10, pady=5, sticky=tk.EW
+            )
+            tk.Entry(self.qp_round_weights_frame, textvariable=self.round_weights_vars[i + 4], font=("Gadugi", 10), width=17).grid(
+                row=2, column=i, padx=15, pady=(5, 30), sticky=tk.EW
             )
             
         # Quick play weights frame
         self.qp_weight_frame = tk.Frame(self)
-        self.qp_weight_frame.grid(row=6, column=0, columnspan=3, pady=10)
+        self.qp_weight_frame.grid(row=5, column=0, columnspan=3, pady=10)
         
         qp_weight_entry_labels = ["Win", "Lose", "Second Place"]
         
@@ -663,11 +691,11 @@ class WorldTourCalculator(tk.Tk):
 
         # Calculate button
         self.calc_button = ttk.Button(self, text="Calculate", command=self.calculate, cursor="question_arrow")
-        self.calc_button.grid(row=7, column=0, columnspan=3, pady=(20, 0))
+        self.calc_button.grid(row=6, column=0, columnspan=3, pady=(20, 0))
 
         # Results section
         result_frame = ttk.Frame(self)
-        result_frame.grid(row=8, column=0, columnspan=3, pady=(30, 0))
+        result_frame.grid(row=7, column=0, columnspan=3, pady=(30, 0))
 
         self.result_label = tk.Label(result_frame, text=self.base_result_label_text, font=("Gadugi", 12))
         self.result_label.grid(row=0, column=0, padx=15, pady=15)
@@ -689,7 +717,7 @@ class WorldTourCalculator(tk.Tk):
         self.tree.insert("", "end", values=(self.row_labels[2], self.lose_final_round_games, self.convert_time(self.lose_final_round_time)))
         self.tree.insert("", "end", values=(self.row_labels[3], self.win_final_round_games, self.convert_time(self.win_final_round_time)))
 
-        self.tree.grid(row=9, column=0, columnspan=3, padx=50, pady=(40, 50))
+        self.tree.grid(row=8, column=0, columnspan=3, padx=50, pady=(40, 50))
     
     
 if __name__ == "__main__":
