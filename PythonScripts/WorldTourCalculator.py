@@ -157,16 +157,22 @@ class WorldTourCalculator(tk.Tk):
         ]
         
         # Weights for how often a certain type of round will occur
-        self.round_one_weight = tk.StringVar(value="50")
-        self.round_two_weight = tk.StringVar(value="25")
-        self.lose_final_round_weight = tk.StringVar(value="15")
-        self.win_final_round_weight = tk.StringVar(value="10")
+        self.round_one_weight = tk.StringVar(value="35")
+        self.round_two_weight = tk.StringVar(value="20")
+        self.lose_final_round_weight = tk.StringVar(value="10")
+        self.win_final_round_weight = tk.StringVar(value="5")
+        self.win_qp_weight = tk.StringVar(value="10")
+        self.second_place_qp_weight = tk.StringVar(value="10")
+        self.lose_qp_weight = tk.StringVar(value="10")
 
         self.round_weights_vars = [
             self.round_one_weight,
             self.round_two_weight,
             self.lose_final_round_weight,
             self.win_final_round_weight,
+            self.win_qp_weight,
+            self.second_place_qp_weight,
+            self.lose_qp_weight
         ]
 
         for i, var in enumerate(self.round_weights_vars):
@@ -430,6 +436,9 @@ class WorldTourCalculator(tk.Tk):
             round_two_playtime,
             lose_final_round_playtime,
             win_final_round_playtime,
+            win_qp_playtime,
+            second_place_qp_playtime,
+            lose_qp_playtime
             ]
             round_weights = [float(var.get() or 0) for var in self.round_weights_vars]
             weighted_playtime = sum((w / 100) * t for w, t in zip(round_weights, playtimes))
@@ -625,7 +634,7 @@ class WorldTourCalculator(tk.Tk):
         self.round_weights_frame = tk.Frame(self)
         self.round_weights_frame.grid(row=5, column=0, columnspan=3)
 
-        weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round"]
+        weight_entry_labels = ["Round One", "Round Two", "Lose Final Round", "Win Final Round", "Win", "Second Place", "Lose"]
 
         # World Tour weight entries
         for i in range(4):
