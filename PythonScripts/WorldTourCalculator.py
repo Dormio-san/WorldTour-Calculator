@@ -22,6 +22,8 @@ class WorldTourCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
         
+        self.geometry("650x700")
+        
         # Set application title
         self.title("World Tour Points Calculator")
 
@@ -571,23 +573,57 @@ class WorldTourCalculator(tk.Tk):
         
         # Refresh the games table to show the saved table data
         self.refresh_games_table()
-        
+    
+    
+    def on_frame_configure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+    
+    
+    def on_mousewheel(self, event):
+        if event.num == 4 or event.delta > 0:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.num == 5 or event.delta < 0:
+            self.canvas.yview_scroll(1, "units")
+    
     
     # Initial setup of UI
     def setup_ui(self):
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        
         # Create calculator tabs
         calc_tabs = ttk.Notebook(self)
-        calc_tabs.grid(row=0, column=0, columnspan=3, sticky='nsew', padx=5, pady=5)
+        calc_tabs.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
 
         world_tour_tab = tk.Frame(calc_tabs)
-        quick_play_tab = tk.Frame(calc_tabs)
+        #quick_play_tab = tk.Frame(calc_tabs)
         calc_tabs.add(world_tour_tab, text='World Tour')
-        calc_tabs.add(quick_play_tab, text='Quick Play')
+        #calc_tabs.add(quick_play_tab, text='Quick Play')
+        calc_tabs.rowconfigure(0, weight=1)
+        calc_tabs.columnconfigure(0, weight=1)
+        
+        world_tour_tab.rowconfigure(0, weight=1)
+        world_tour_tab.columnconfigure(0, weight=1)
 
         calc_tabs.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+        
+        self.canvas = tk.Canvas(world_tour_tab)
+        scrollbar = tk.Scrollbar(world_tour_tab, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self.on_mousewheel)
+        self.canvas.bind_all("<Button-5>", self.on_mousewheel)
+        
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        scroll_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+        
+        scroll_frame.bind("<Configure>", self.on_frame_configure)
 
         # Setup the goal points label
-        self.goal_label = tk.Label(self, text="Select your goal", font=("Gadugi", 11))
+        self.goal_label = tk.Label(scroll_frame, text="Select your goal", font=("Gadugi", 11))
         self.goal_label.grid(row=1, column=0, columnspan=3, pady=(10, 8))
 
         # Create the dropdown list of badge options
@@ -605,7 +641,7 @@ class WorldTourCalculator(tk.Tk):
         self.optionmenu_style.configure("My.TMenubutton", font=("Gadugi", 11))
 
         self.badge_menu = ttk.OptionMenu(
-            self,
+            scroll_frame,
             self.badge_var,
             dropdown_options[-1],
             *dropdown_options,
@@ -614,7 +650,7 @@ class WorldTourCalculator(tk.Tk):
         self.badge_menu.grid(row=2, column=0, columnspan=3, pady=(0, 30))
         
         # Points entry
-        points_entry_frame = tk.Frame(self)
+        points_entry_frame = tk.Frame(scroll_frame)
         points_entry_frame.grid(row=3, column=0, columnspan=3, pady=(5, 25))
 
         points_entry_label = tk.Label(points_entry_frame, text="Enter current points:", font=("Gadugi", 12))
@@ -624,7 +660,7 @@ class WorldTourCalculator(tk.Tk):
         self.points_entry.grid(row=0, column=1, padx=5)
 
         # World tour weights frame
-        self.round_weights_frame = tk.Frame(self)
+        self.round_weights_frame = tk.Frame(scroll_frame)
         self.round_weights_frame.grid(row=4, column=0, columnspan=4)
         
         # Round weights label
@@ -652,7 +688,7 @@ class WorldTourCalculator(tk.Tk):
                 row=3, column=i, padx=15, pady=(5, 15)
             )
         
-        # World tour weights frame
+        # Quick Play weights frame
         self.qp_round_weights_frame = tk.Frame(self.round_weights_frame)
         self.qp_round_weights_frame.grid(row=4, column=0, columnspan=4)
         
@@ -660,7 +696,7 @@ class WorldTourCalculator(tk.Tk):
             self.qp_round_weights_frame,
             text="Quick Play",
             font=("Gadugi", 12),
-        ).grid(row=0, column=0, columnspan=4, pady=(15, 5))
+        ).grid(row=0, column=0, columnspan=4, pady=(25, 10))
         
         qp_weight_entry_labels = ["Win", "Second Place", "Lose"]
         
@@ -668,14 +704,14 @@ class WorldTourCalculator(tk.Tk):
         for i in range(len(qp_weight_entry_labels)):
             #r, c = divmod(i, 3)
             tk.Label(self.qp_round_weights_frame, text=qp_weight_entry_labels[i], font=("Gadugi", 11)).grid(
-                row=1, column=i, padx=10, pady=5, sticky=tk.EW
+                row=1, column=i, padx=10, pady=5
             )
             tk.Entry(self.qp_round_weights_frame, textvariable=self.round_weights_vars[i + 4], font=("Gadugi", 10), width=17).grid(
-                row=2, column=i, padx=15, pady=(5, 30), sticky=tk.EW
+                row=2, column=i, padx=15, pady=(5, 30)
             )
             
         # Quick play weights frame
-        self.qp_weight_frame = tk.Frame(self)
+        self.qp_weight_frame = tk.Frame(scroll_frame)
         self.qp_weight_frame.grid(row=5, column=0, columnspan=3, pady=10)
         
         qp_weight_entry_labels = ["Win", "Lose", "Second Place"]
@@ -690,11 +726,11 @@ class WorldTourCalculator(tk.Tk):
             )
 
         # Calculate button
-        self.calc_button = ttk.Button(self, text="Calculate", command=self.calculate, cursor="question_arrow")
+        self.calc_button = ttk.Button(scroll_frame, text="Calculate", command=self.calculate, cursor="question_arrow")
         self.calc_button.grid(row=6, column=0, columnspan=3, pady=(20, 0))
 
         # Results section
-        result_frame = ttk.Frame(self)
+        result_frame = ttk.Frame(scroll_frame)
         result_frame.grid(row=7, column=0, columnspan=3, pady=(30, 0))
 
         self.result_label = tk.Label(result_frame, text=self.base_result_label_text, font=("Gadugi", 12))
@@ -702,7 +738,7 @@ class WorldTourCalculator(tk.Tk):
 
         # Games table
         columns = ("round_type", "number_of_rounds", "playtime")
-        self.tree = ttk.Treeview(self, columns=columns, show="headings", height=8)
+        self.tree = ttk.Treeview(scroll_frame, columns=columns, show="headings", height=8)
         self.tree.heading("round_type", text="Round Type")
         self.tree.heading("number_of_rounds", text="Number of Rounds")
         self.tree.heading("playtime", text="Playtime")
