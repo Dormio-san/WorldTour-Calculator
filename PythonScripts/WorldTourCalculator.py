@@ -592,23 +592,23 @@ class WorldTourCalculator(tk.Tk):
         self.columnconfigure(0, weight=1)
         
         # Create calculator tabs
-        calc_tabs = ttk.Notebook(self)
-        calc_tabs.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+        #calc_tabs = ttk.Notebook(self)
+        #calc_tabs.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
 
-        world_tour_tab = tk.Frame(calc_tabs)
+        #world_tour_tab = tk.Frame(calc_tabs)
         #quick_play_tab = tk.Frame(calc_tabs)
-        calc_tabs.add(world_tour_tab, text='World Tour')
+        #calc_tabs.add(world_tour_tab, text='World Tour')
         #calc_tabs.add(quick_play_tab, text='Quick Play')
-        calc_tabs.rowconfigure(0, weight=1)
-        calc_tabs.columnconfigure(0, weight=1)
+        #calc_tabs.rowconfigure(0, weight=1)
+        #calc_tabs.columnconfigure(0, weight=1)
         
-        world_tour_tab.rowconfigure(0, weight=1)
-        world_tour_tab.columnconfigure(0, weight=1)
+        #world_tour_tab.rowconfigure(0, weight=1)
+        #world_tour_tab.columnconfigure(0, weight=1)
 
-        calc_tabs.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+        #calc_tabs.bind("<<NotebookTabChanged>>", self.on_tab_changed)
         
-        self.canvas = tk.Canvas(world_tour_tab)
-        scrollbar = tk.Scrollbar(world_tour_tab, orient="vertical", command=self.canvas.yview)
+        self.canvas = tk.Canvas(self)
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=scrollbar.set)
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
         self.canvas.bind_all("<Button-4>", self.on_mousewheel)
@@ -710,28 +710,13 @@ class WorldTourCalculator(tk.Tk):
                 row=2, column=i, padx=15, pady=(5, 30)
             )
             
-        # Quick play weights frame
-        self.qp_weight_frame = tk.Frame(scroll_frame)
-        self.qp_weight_frame.grid(row=5, column=0, columnspan=3, pady=10)
-        
-        qp_weight_entry_labels = ["Win", "Lose", "Second Place"]
-        
-        # Quick play weight entries
-        for i in range(3):
-            tk.Label(self.qp_weight_frame, text=qp_weight_entry_labels[i], font=("Gadugi", 11)).grid(
-                row=0, column=i, padx=10, pady=5
-            )
-            tk.Entry(self.qp_weight_frame, textvariable=self.qp_round_weights_vars[i], font=("Gadugi", 10), width=17).grid(
-                row=1, column=i, padx=15, pady=5
-            )
-
         # Calculate button
         self.calc_button = ttk.Button(scroll_frame, text="Calculate", command=self.calculate, cursor="question_arrow")
-        self.calc_button.grid(row=6, column=0, columnspan=3, pady=(20, 0))
+        self.calc_button.grid(row=5, column=0, columnspan=3, pady=(20, 0))
 
         # Results section
         result_frame = ttk.Frame(scroll_frame)
-        result_frame.grid(row=7, column=0, columnspan=3, pady=(30, 0))
+        result_frame.grid(row=6, column=0, columnspan=3, pady=(30, 0))
 
         self.result_label = tk.Label(result_frame, text=self.base_result_label_text, font=("Gadugi", 12))
         self.result_label.grid(row=0, column=0, padx=15, pady=15)
@@ -752,8 +737,11 @@ class WorldTourCalculator(tk.Tk):
         self.tree.insert("", "end", values=(self.row_labels[1], self.round_two_games, self.convert_time(self.round_two_time)))
         self.tree.insert("", "end", values=(self.row_labels[2], self.lose_final_round_games, self.convert_time(self.lose_final_round_time)))
         self.tree.insert("", "end", values=(self.row_labels[3], self.win_final_round_games, self.convert_time(self.win_final_round_time)))
+        self.tree.insert("", "end", values=(self.row_labels[4], self.win_qp_games, self.convert_time(self.game_time)))
+        self.tree.insert("", "end", values=(self.row_labels[5], self.second_place_qp_games, self.convert_time(self.game_time)))
+        self.tree.insert("", "end", values=(self.row_labels[6], self.lose_qp_games, self.convert_time(self.game_time)))
 
-        self.tree.grid(row=8, column=0, columnspan=3, padx=50, pady=(40, 50))
+        self.tree.grid(row=7, column=0, columnspan=3, padx=50, pady=(40, 50))
     
     
 if __name__ == "__main__":
