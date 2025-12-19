@@ -624,7 +624,7 @@ class WorldTourCalculator(tk.Tk):
 
         # Setup the goal points label
         self.goal_label = tk.Label(scroll_frame, text="Select your goal", font=("Gadugi", 11))
-        self.goal_label.grid(row=1, column=0, columnspan=3, pady=(10, 8))
+        self.goal_label.grid(row=1, column=0, columnspan=3, pady=(25, 8))
 
         # Create the dropdown list of badge options
         self.badge_dict = {
