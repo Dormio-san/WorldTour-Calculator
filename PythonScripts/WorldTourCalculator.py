@@ -289,7 +289,7 @@ class WorldTourCalculator(tk.Tk):
         self.current_tab = "World Tour Tab"
         self.goal_points = self.world_tour_badge_options[-1][1]
 
-        # Create widgets here and populate them later
+        # Create widgets, population occurs later
         self.badge_dict = {}
         self.badge_var = tk.StringVar()
 
