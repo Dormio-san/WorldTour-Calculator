@@ -33,31 +33,6 @@ class WorldTourCalculator(tk.Tk):
         style.configure("Treeview", font=("Gadugi", 10))
         style.configure("Treeview.Heading", font=("Gadugi", 11))
         style.configure("TButton", font=("Gadugi", 10))
-        
-        # Styling for notebook
-        style.configure(
-            "TNotebook",
-            #background="gray",   # box around the tabs
-            tabmargins=[0, 0, 0, 0]   # space on the left, up, down, and right
-        )
-
-        # All tabs
-        style.configure(
-            "TNotebook.Tab",
-            #background="gray",  # tab background color
-            foreground="black",  # text color
-            padding=[15, 3],   # horizontal, vertical padding
-            font=("Gadugi", 11)
-        )
-
-        # Selected tab state
-        style.map(
-            "TNotebook.Tab",
-            #background=[("selected", "light gray")],
-            foreground=[("selected", "green")],
-            font=[("selected", ("Gadugi", 13))],
-            padding=[("selected", [15, 6])]
-        )
 
         # --- World Tour Data ---
         # Estimated time each game will take
@@ -179,92 +154,7 @@ class WorldTourCalculator(tk.Tk):
 
         for i, var in enumerate(self.round_weights_vars):
             var.trace_add("write", lambda *args, idx=i: self.validate_weight(idx, self.round_weights_vars))
-
-        # --- Quick Play Data ---
-        # Quick play time
-        self.qp_additional_time = 2
-        
-        # Base quick cash variables for wins and playtime
-        self.win_games = 1
-        self.lose_games = 1
-        self.second_place_qc_games = 1
-        
-        # Quick Cash awarded point values
-        self.first_place_quick_cash = 10
-        self.second_place_quick_cash = 6
-        self.third_place_quick_cash = 5
-
-        # Team vs Team game modes (TDM, Power Shift, Head 2 Head)
-        self.win_tvt = 10
-        self.lose_tvt = 5
-        
-        # Match time and awarded point values for special mode blast off
-        self.blast_off_time = 6 + self.qp_additional_time
-        self.blast_off_win = 8
-        self.blast_off_lose = 4
-
-        self.win_playtime = self.base_game_time + self.qp_additional_time
-        self.lose_playtime = self.base_game_time + self.qp_additional_time
-        self.second_place_qc_playtime = self.base_game_time + self.qp_additional_time
-
-        # Labels for rows in the quick play games table
-        self.qp_row_labels = [
-            "Win",
-            "Lose",
-            "Second Place",
-            "Win Blast Off",
-            "Lose Blast Off",
-        ]
-
-        # Full table rows in the quick play games table
-        self.qp_games_table_rows = [
-            [self.qp_row_labels[0], self.win_games, self.win_playtime],
-            [self.qp_row_labels[1], self.lose_games, self.lose_playtime],
-            [self.qp_row_labels[2], self.second_place_qc_games, self.second_place_qc_playtime],
-            [self.qp_row_labels[3], 1, self.blast_off_time],
-            [self.qp_row_labels[4], 1, self.blast_off_time],
-        ]
-
-        # Modified when a calculation occurs
-        # Number of games and time will be updated and then used to update the data in the games table rows
-        self.qp_updated_games_data = [
-            (self.win_games, self.win_playtime),
-            (self.lose_games, self.lose_playtime),
-            (self.second_place_qc_games, self.second_place_qc_playtime),
-            (1, self.blast_off_time),
-            (1, self.blast_off_time),
-        ]
-
-        # The different badges the user can choose from to be their goal
-        self.quick_play_badge_options = [
-            ("Bronze 4", 50),
-            ("Bronze 3", 100),
-            ("Bronze 2", 150),
-            ("Bronze 1", 200),
-            ("Silver 4", 300),
-            ("Silver 3", 400),
-            ("Silver 2", 500),
-            ("Silver 1", 600),
-            ("Gold 4", 775),
-            ("Gold 3", 950),
-            ("Gold 2", 1125),
-            ("Gold 1", 1300),
-        ]
-        
-        # Weights for how often certain types of matches in quick play occur
-        self.win_weight = tk.StringVar(value="30")
-        self.lose_weight = tk.StringVar(value="50")
-        self.qc_second_place_weight = tk.StringVar(value="20")
-
-        self.qp_round_weights_vars = [
-            self.win_weight,
-            self.lose_weight,
-            self.qc_second_place_weight,
-        ]
-
-        for i, var in enumerate(self.qp_round_weights_vars):
-            var.trace_add("write", lambda *args, idx=i: self.validate_weight(idx, self.qp_round_weights_vars))
-
+            
         # --- General Data --- 
         self.base_result_label_text = "\n Enter info and press calculate \n"
 
@@ -275,14 +165,7 @@ class WorldTourCalculator(tk.Tk):
                 "selected_option": "Emerald 1: 2400",
                 "result_label_text": self.base_result_label_text,
                 "tree_data": self.games_table_rows,
-            },
-            "Quick Play Tab": {
-                "name": "Quick Play",
-                "dropdown_options": self.quick_play_badge_options,
-                "selected_option": "Gold 1: 1300",
-                "result_label_text": self.base_result_label_text,
-                "tree_data": self.qp_games_table_rows,
-            },
+            }
         }
         
         # Currently active tab key
@@ -329,19 +212,6 @@ class WorldTourCalculator(tk.Tk):
 
     
     # --- UI Data Management Methods ---
-    def on_tab_changed(self, event):
-        notebook = event.widget
-        selected_tab = notebook.select()
-        tab_index = notebook.index(selected_tab)
-
-        if tab_index == 0:
-            self.current_tab = "World Tour Tab"
-            self.setup_world_tour_ui()
-        elif tab_index == 1:
-            self.current_tab = "Quick Play Tab"
-            self.setup_quick_play_ui()
-           
-           
     # When a badge is selected, update the goal points and its display 
     def on_badge_selected(self, *args):
         label, points = self.badge_dict[self.badge_var.get()]
@@ -466,84 +336,12 @@ class WorldTourCalculator(tk.Tk):
             self.result_label.config(text="Please enter a valid points value.")
             
         
-    # Calculate the different data points that will be shown to the user
-    def qp_calculate(self):
-        try:
-            # Reference to the saved data for quiick play tab
-            data = self.tab_data["Quick Play Tab"]
-            
-            # The amount of points left to reach the goal points
-            current_points = int(self.points_entry.get())
-            points_remaining = self.goal_points - current_points
-            display = f"\n Points remaining: {points_remaining}\n"
-            
-            # Number of games required for each amount of rewared points to reach the goal points
-            # Win tvt and 1st place quick cash are same value. 
-            # Lose tvt and 3rd place quick cash also same value.
-            win_games = self.division_round_up(points_remaining, self.win_tvt)
-            lose_games = self.division_round_up(points_remaining, self.lose_tvt)
-            second_place_qc_games = self.division_round_up(points_remaining, self.second_place_quick_cash)
-            blast_off_win_games = self.division_round_up(points_remaining, self.blast_off_win)
-            blast_off_lose_games = self.division_round_up(points_remaining, self.blast_off_lose)
-            
-            # Playtime to reach goal points if only type specified is played
-            win_playtime = win_games * self.game_time
-            lose_playtime = lose_games * self.game_time
-            second_place_qc_playtime = second_place_qc_games * self.game_time
-            blast_off_win_time = blast_off_win_games * self.blast_off_time
-            blast_off_lose_time = blast_off_lose_games * self.blast_off_time
-            
-            # Update the data in the games table and refresh the table to display the updated data
-            self.qp_updated_games_data[0] = (win_games, self.convert_time(win_playtime))
-            self.qp_updated_games_data[1] = (lose_games, self.convert_time(lose_playtime))
-            self.qp_updated_games_data[2] = (second_place_qc_games, self.convert_time(second_place_qc_playtime))
-            self.qp_updated_games_data[3] = (blast_off_win_games, self.convert_time(blast_off_win_time))
-            self.qp_updated_games_data[4] = (blast_off_lose_games, self.convert_time(blast_off_lose_time))            
-            for i, (games, time_str) in enumerate(self.qp_updated_games_data):
-                self.qp_games_table_rows[i][1] = games
-                self.qp_games_table_rows[i][2] = time_str
-
-            self.refresh_games_table()
-            
-            # Calculate playtime based on the chance of each quick play match type occurring
-            playtimes = [win_playtime, lose_playtime, second_place_qc_playtime]
-            round_weights = [float(var.get() or 0) for var in self.qp_round_weights_vars]
-            weighted_playtime = sum((w / 100) * t for w, t in zip(round_weights, playtimes))
-            
-            # Estimated amount of play time to reach the goal points based on round weights
-            display += f"Estimated play time: {self.convert_time(weighted_playtime)}\n"
-            
-            # The amount of points needed per day to reach the goal points
-            days_remaining = (self.season_end_date - self.todays_date).days
-            daily_points = points_remaining // days_remaining
-            display += f"Days left in season: {days_remaining}\n"
-            display += f"Daily points: {daily_points}\n"
-            
-            # Maximum and weighted time to play each day to reach the goal points
-            display += f"Max daily play time: {self.convert_time(lose_playtime / days_remaining)}"
-            display += f"Weighted daily play time: {self.convert_time(weighted_playtime / days_remaining)}"
-            
-            # Set and save the result label text
-            self.result_label.config(text=display)
-            data["result_label_text"] = display
-            
-        except ValueError:
-            self.result_label.config(text="Please enter a valid points value.")
-
-
     # --- Tab-Specific UI Setup ---
     def setup_world_tour_ui(self):
         self.calc_button.config(command=self.calculate)
         self.round_weights_frame.grid()
         self.qp_weight_frame.grid_remove()
         self.load_tab_data("World Tour Tab")
-        
-    def setup_quick_play_ui(self):
-        self.calc_button.config(command=self.qp_calculate)
-        self.round_weights_frame.grid_remove()
-        self.qp_weight_frame.grid()
-        self.load_tab_data("Quick Play Tab")
-
 
     def load_tab_data(self, tab_name):
         data = self.tab_data[tab_name]
@@ -590,22 +388,6 @@ class WorldTourCalculator(tk.Tk):
     def setup_ui(self):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
-        
-        # Create calculator tabs
-        #calc_tabs = ttk.Notebook(self)
-        #calc_tabs.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
-
-        #world_tour_tab = tk.Frame(calc_tabs)
-        #quick_play_tab = tk.Frame(calc_tabs)
-        #calc_tabs.add(world_tour_tab, text='World Tour')
-        #calc_tabs.add(quick_play_tab, text='Quick Play')
-        #calc_tabs.rowconfigure(0, weight=1)
-        #calc_tabs.columnconfigure(0, weight=1)
-        
-        #world_tour_tab.rowconfigure(0, weight=1)
-        #world_tour_tab.columnconfigure(0, weight=1)
-
-        #calc_tabs.bind("<<NotebookTabChanged>>", self.on_tab_changed)
         
         self.canvas = tk.Canvas(self)
         scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
