@@ -33,6 +33,7 @@ class WorldTourCalculator(tk.Tk):
         style.configure("Treeview", font=("Gadugi", 10))
         style.configure("Treeview.Heading", font=("Gadugi", 11))
         style.configure("TButton", font=("Gadugi", 10))
+        style.configure("My.TMenubutton", font=("Gadugi", 11))
 
         # --- World Tour Data ---
         # Estimated time each game will take
@@ -66,6 +67,9 @@ class WorldTourCalculator(tk.Tk):
         self.round_two_time = self.game_time * 2
         self.lose_final_round_time = self.game_time * 3
         self.win_final_round_time = self.game_time * 3
+        self.win_qp_time = self.game_time
+        self.second_place_qp_time = self.game_time
+        self.lose_qp_time = self.game_time
 
         # Dates used to determine how much time is left in the season
         self.season_end_date = date(2026, 3, 19)
@@ -116,9 +120,9 @@ class WorldTourCalculator(tk.Tk):
             [self.row_labels[1], self.round_two_games, self.round_two_time],
             [self.row_labels[2], self.lose_final_round_games, self.lose_final_round_time],
             [self.row_labels[3], self.win_final_round_games, self.win_final_round_time],
-            [self.row_labels[4], self.win_qp_games, self.game_time],
-            [self.row_labels[5], self.second_place_qp_games, self.game_time],
-            [self.row_labels[6], self.lose_qp_games, self.game_time],
+            [self.row_labels[4], self.win_qp_games, self.win_qp_time],
+            [self.row_labels[5], self.second_place_qp_games, self.second_place_qp_time],
+            [self.row_labels[6], self.lose_qp_games, self.lose_qp_time],
         ]
 
         # Modified when a calculation occurs
@@ -128,19 +132,19 @@ class WorldTourCalculator(tk.Tk):
             (self.round_two_games, self.round_two_time),
             (self.lose_final_round_games, self.lose_final_round_time),
             (self.win_final_round_games, self.win_final_round_time),
-            (self.win_qp_games, self.game_time),
-            (self.second_place_qp_games, self.game_time),
-            (self.lose_qp_games, self.game_time)
+            (self.win_qp_games, self.win_qp_time),
+            (self.second_place_qp_games, self.second_place_qp_time),
+            (self.lose_qp_games, self.lose_qp_time)
         ]
         
         # Weights for how often a certain type of round will occur
-        self.round_one_weight = tk.StringVar(value="35")
+        self.round_one_weight = tk.StringVar(value="25")
         self.round_two_weight = tk.StringVar(value="20")
         self.lose_final_round_weight = tk.StringVar(value="10")
         self.win_final_round_weight = tk.StringVar(value="5")
-        self.win_qp_weight = tk.StringVar(value="10")
+        self.win_qp_weight = tk.StringVar(value="15")
         self.second_place_qp_weight = tk.StringVar(value="5")
-        self.lose_qp_weight = tk.StringVar(value="15")
+        self.lose_qp_weight = tk.StringVar(value="20")
 
         self.round_weights_vars = [
             self.round_one_weight,
@@ -283,9 +287,9 @@ class WorldTourCalculator(tk.Tk):
             round_two_playtime = self.round_two_games * self.round_two_time
             lose_final_round_playtime = self.lose_final_round_games * self.lose_final_round_time
             win_final_round_playtime = self.win_final_round_games * self.win_final_round_time
-            win_qp_playtime = self.win_qp_games * self.game_time
-            second_place_qp_playtime = self.second_place_qp_games * self.game_time
-            lose_qp_playtime = self.lose_qp_games * self.game_time
+            win_qp_playtime = self.win_qp_games * self.win_qp_time
+            second_place_qp_playtime = self.second_place_qp_games * self.second_place_qp_time
+            lose_qp_playtime = self.lose_qp_games * self.lose_qp_time
             
             # Update the data in the games table and refresh the table to display the updated data
             self.updated_games_data[0] = (self.round_one_games, self.convert_time(round_one_playtime))
@@ -381,10 +385,6 @@ class WorldTourCalculator(tk.Tk):
 
         self.badge_var.set(dropdown_options[-1])
         self.badge_var.trace_add("write", self.on_badge_selected)
-
-        # Style the option menu
-        self.optionmenu_style = ttk.Style(self)
-        self.optionmenu_style.configure("My.TMenubutton", font=("Gadugi", 11))
 
         self.badge_menu = ttk.OptionMenu(
             scroll_frame,
@@ -483,9 +483,9 @@ class WorldTourCalculator(tk.Tk):
         self.tree.insert("", "end", values=(self.row_labels[1], self.round_two_games, self.convert_time(self.round_two_time)))
         self.tree.insert("", "end", values=(self.row_labels[2], self.lose_final_round_games, self.convert_time(self.lose_final_round_time)))
         self.tree.insert("", "end", values=(self.row_labels[3], self.win_final_round_games, self.convert_time(self.win_final_round_time)))
-        self.tree.insert("", "end", values=(self.row_labels[4], self.win_qp_games, self.convert_time(self.game_time)))
-        self.tree.insert("", "end", values=(self.row_labels[5], self.second_place_qp_games, self.convert_time(self.game_time)))
-        self.tree.insert("", "end", values=(self.row_labels[6], self.lose_qp_games, self.convert_time(self.game_time)))
+        self.tree.insert("", "end", values=(self.row_labels[4], self.win_qp_games, self.convert_time(self.win_qp_time)))
+        self.tree.insert("", "end", values=(self.row_labels[5], self.second_place_qp_games, self.convert_time(self.second_place_qp_time)))
+        self.tree.insert("", "end", values=(self.row_labels[6], self.lose_qp_games, self.convert_time(self.lose_qp_time)))
 
         self.tree.grid(row=7, column=0, columnspan=3, padx=50, pady=(40, 50))
     
