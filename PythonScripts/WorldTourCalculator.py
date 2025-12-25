@@ -3,10 +3,6 @@
 # Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
-# Quick play calculator. Features mostly the same things as world tour, but instead gives data for quick play.
-# Game time and additional game time input fields for quick play
-# Maybe dropdown for which gamemode in quick play as well. Game modes can vary in how long they are.
-# Additionally, special event game modes can give the player different amounts of points.
 
 # To build the calculator, run "pyinstaller --onefile --windowed WorldTourCalculator.py"
 # If pyinstaller is not a recognized command, ensure you install it by running "pip install pyinstaller"
