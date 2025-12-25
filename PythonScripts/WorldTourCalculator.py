@@ -269,7 +269,7 @@ class WorldTourCalculator(tk.Tk):
             display = f"\n Points remaining: {points_remaining}\n"
             
             # Number of games required in each round to reach the goal points
-            # Includes losing first round, losing second round, losing final round, and winning final round
+            # Includes both world tour and quick play
             self.round_one_games = self.division_round_up(points_remaining, self.lose_round_one_points)
             self.round_two_games = self.division_round_up(points_remaining, self.lose_round_two_points)
             self.lose_final_round_games = self.division_round_up(points_remaining, self.lose_final_round_points)
@@ -335,43 +335,6 @@ class WorldTourCalculator(tk.Tk):
         except ValueError:
             self.result_label.config(text="Please enter a valid points value.")
             
-        
-    # --- Tab-Specific UI Setup ---
-    def setup_world_tour_ui(self):
-        self.calc_button.config(command=self.calculate)
-        self.round_weights_frame.grid()
-        self.qp_weight_frame.grid_remove()
-        self.load_tab_data("World Tour Tab")
-
-    def load_tab_data(self, tab_name):
-        data = self.tab_data[tab_name]
-
-        # Remove dropdown options
-        dropdown_menu = self.badge_menu["menu"]
-        dropdown_menu.delete(0, "end")
-
-        # Add new dropdown options for this specific tab
-        self.badge_dict = {
-            f"{label}: {points}": (label, points)
-            for label, points in data["dropdown_options"]
-        }
-        dropdown_options = list(self.badge_dict.keys())
-
-        for option in dropdown_options:
-            dropdown_menu.add_command(
-                label=option,
-                command=lambda v=option: self.badge_var.set(v),
-            )
-
-        # Set selected option from saved data
-        self.badge_var.set(data["selected_option"])
-        
-        # Set result label text from saved data
-        self.result_label.config(text=data["result_label_text"])
-        
-        # Refresh the games table to show the saved table data
-        self.refresh_games_table()
-    
     
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -389,6 +352,7 @@ class WorldTourCalculator(tk.Tk):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         
+        # Setup canvas and scrollbar
         self.canvas = tk.Canvas(self)
         scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=scrollbar.set)
