@@ -35,8 +35,10 @@ class WorldTourCalculator(tk.Tk):
         # Estimated time each game will take
         # Additional game time includes things like queue time, loading time, and transition time between matches
         self.base_game_time = 10
-        self.additional_game_time = 3
-        self.game_time = self.base_game_time + self.additional_game_time
+        self.additional_game_time = tk.StringVar(value="3")
+        self.game_time = self.base_game_time + int(self.additional_game_time.get())
+        
+        self.additional_game_time.trace_add("write", self.update_time)
 
         # Points awarded for each round in world tour
         self.lose_round_one_points = 2
@@ -179,6 +181,7 @@ class WorldTourCalculator(tk.Tk):
         self.goal_label = None
         self.badge_menu = None
         self.points_entry = None
+        self.additional_game_time_entry = None
         self.round_weights_frame = None
         self.qp_weight_frame = None
         self.calc_button = None
@@ -254,6 +257,23 @@ class WorldTourCalculator(tk.Tk):
         # If value entered is above max, set to the maximum allowed value
         if vals[index] > max_allowed:
             weights_vars[index].set(str(max_allowed))
+
+
+    # Update the times when the user changes the additional game time
+    def update_time(self, *args):
+        try:
+            inputted_time = int(self.additional_game_time.get())
+        except ValueError:
+            inputted_time = 0
+       
+        self.game_time = self.base_game_time + inputted_time
+        self.round_one_time = self.game_time
+        self.round_two_time = self.game_time * 2
+        self.lose_final_round_time = self.game_time * 3
+        self.win_final_round_time = self.game_time * 3
+        self.win_qp_time = self.game_time
+        self.second_place_qp_time = self.game_time
+        self.lose_qp_time = self.game_time
 
 
     # --- Main Calculations ---
@@ -396,10 +416,17 @@ class WorldTourCalculator(tk.Tk):
         points_entry_frame.grid(row=3, column=0, columnspan=3, pady=(5, 25))
 
         points_entry_label = tk.Label(points_entry_frame, text="Enter current points:", font=("Gadugi", 12))
-        points_entry_label.grid(row=0, column=0, padx=5)
+        points_entry_label.grid(row=0, column=0, padx=5, pady=(0, 20), sticky=tk.E)
 
         self.points_entry = ttk.Entry(points_entry_frame, font=("Gadugi", 10))
-        self.points_entry.grid(row=0, column=1, padx=5)
+        self.points_entry.grid(row=0, column=1, padx=5, pady=(0, 20))
+        
+        # Additional game time input
+        additional_game_time_label = tk.Label(points_entry_frame, text="Time between games (minutes):", font=("Gadugi", 12))
+        additional_game_time_label.grid(row=1, column=0, padx=5)
+        
+        self.additional_game_time_entry = ttk.Entry(points_entry_frame, textvariable=self.additional_game_time, font=("Gadugi", 10))
+        self.additional_game_time_entry.grid(row=1, column=1, padx=5)
 
         # World tour weights frame
         self.round_weights_frame = tk.Frame(scroll_frame)
