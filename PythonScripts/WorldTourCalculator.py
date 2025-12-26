@@ -1,6 +1,5 @@
 # Planned features: 
 # Have points to next rank stat
-# Also have input for player to put how long a match is. Maybe they want to add loading time to calculation.
 # Potential additions: projected completion (based on time left and progress so far)
 #   Estimated completion date (how many points  you've gotten per day so far, and use days left in season)
 
