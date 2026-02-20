@@ -69,7 +69,7 @@ class WorldTourCalculator(tk.Tk):
         self.lose_qp_time = self.game_time
 
         # Dates used to determine how much time is left in the season
-        self.season_end_date = date(2026, 3, 19)
+        self.season_end_date = date(2026, 3, 26)
         self.todays_date = date.today()
 
         # The different badges in world tour
